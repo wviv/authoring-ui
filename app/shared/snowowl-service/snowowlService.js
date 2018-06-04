@@ -1,9 +1,9 @@
 'use strict';
 
 angular.module('singleConceptAuthoringApp')
-  .service('snowowlService', ['$http', '$q', '$timeout', 'notificationService', 'metadataService',
-    function ($http, $q, $timeout, notificationService, metadataService) {
-      var apiEndpoint = '../snowowl/snomed-ct/v2/';
+  .service('snowowlService', ['$http', '$q', '$timeout', 'notificationService', 'metadataService', '$rootScope',
+    function ($http, $q, $timeout, notificationService, metadataService, $rootScope) {
+      let apiEndpoint = null;
 
       /////////////////////////////////////
       // Snowowl Concept Retrieval Methods
@@ -1762,6 +1762,11 @@ angular.module('singleConceptAuthoringApp')
 
         return deferred.promise;
       }
+        
+      //Config service instatiates endpoint after config load
+      function setEndpoint(url){
+          apiEndpoint = url;
+      }
 
       ////////////////////////////////////////////
       // Method Visibility
@@ -1849,7 +1854,8 @@ angular.module('singleConceptAuthoringApp')
         isRelationshipId: isRelationshipId,
         cleanConcept: cleanConcept,
         cleanDescription: cleanDescription,
-        cleanRelationship: cleanRelationship
+        cleanRelationship: cleanRelationship,
+        setEndpoint: setEndpoint
       };
     }
 
