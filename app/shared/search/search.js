@@ -139,8 +139,6 @@ angular.module('singleConceptAuthoringApp.searchPanel', [])
       // $scope.options from searchPlugin.js ( not all used)
       // TODO Make these enabled
       $scope.options = {
-        serverUrl: '/snowowl',
-        edition: 'snomed-ct/v2/browser',
         release: $scope.branch,
         selectedView: 'inferred',
         displayChildren: false,
