@@ -2609,7 +2609,7 @@ angular.module('singleConceptAuthoringApp').directive('conceptEdit', function ($
 
           if(data.concept) {
             data.id = data.concept.conceptId;
-            data.name = data.concept.fsn;
+            data.name = data.concept.fsn ? data.concept.fsn : data.concept.preferredSynonym;
           }
 
           // cancel if static
@@ -2761,7 +2761,7 @@ angular.module('singleConceptAuthoringApp').directive('conceptEdit', function ($
 
           if(data.concept) {
             data.id = data.concept.conceptId;
-            data.name = data.concept.fsn;
+            data.name = data.concept.fsn ? data.concept.fsn : data.concept.preferredSynonym;
           }
 
           // cancel if static
@@ -3985,7 +3985,7 @@ angular.module('singleConceptAuthoringApp').directive('conceptEdit', function ($
         $timeout(function () {
            $rootScope.$broadcast('elastic:adjust');
         }, 0);
-        
+
 // sets the popover direction (left, bottom, right) based on current
 // position of root element
         scope.setPopoverDirection = function ($event) {
