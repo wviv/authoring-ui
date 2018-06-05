@@ -14,7 +14,7 @@ angular.module('singleConceptAuthoringApp.home', [
             });
     })
 
-    .controller('HomeCtrl', function HomeCtrl($scope, $rootScope, $timeout, ngTableParams, $filter, $modal, $location, scaService, snowowlService, notificationService, metadataService, hotkeys, $q, modalService, $interval) {
+    .controller('HomeCtrl', function HomeCtrl($scope, $rootScope, $timeout, ngTableParams, $filter, $modal, $location, scaService, snowowlService, notificationService, metadataService, hotkeys, $q, modalService, $interval, localStorageService) {
 
         // clear task-related i nformation
         $rootScope.validationRunning = false;
@@ -53,13 +53,19 @@ angular.module('singleConceptAuthoringApp.home', [
         // declare table parameters
         $scope.tableParams = new ngTableParams({
                 page: 1,
-                count: 10,
+                count: localStorageService.get('table-display-number') ? localStorageService.get('table-display-number') : 10,
                 sorting: {updated: 'desc', name: 'asc'}
             },
             {
                 filterDelay: 50,
                 total: $scope.tasks ? $scope.tasks.length : 0, // length of data
                 getData: function ($defer, params) {
+                    
+                    // Store display number to local storage, then can be re-used later
+                    if (!localStorageService.get('table-display-number') 
+                        || params.count() !== localStorageService.get('table-display-number')) {
+                        localStorageService.set('table-display-number', params.count());
+                    }                  
 
                     if (!$scope.tasks || $scope.tasks.length === 0) {
                         $defer.resolve([]);
