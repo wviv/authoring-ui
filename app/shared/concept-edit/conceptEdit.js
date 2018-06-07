@@ -1166,6 +1166,7 @@ angular.module('singleConceptAuthoringApp').directive('conceptEdit', function ($
                         var subjectConceptIds = [];
                         subjectConceptIds.push(scope.concept.conceptId);
                         scaService.addFeedbackToTaskReview($routeParams.projectKey, $routeParams.taskKey, message, subjectConceptIds, false);                       
+                        scaService.markTaskReviewInProgress($routeParams.projectKey, $routeParams.taskKey);                       
                         break;
                       }
                     }
