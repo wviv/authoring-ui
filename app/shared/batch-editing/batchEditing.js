@@ -367,7 +367,7 @@ angular.module('singleConceptAuthoringApp')
 
               snowowlService.validateConcept(scope.task.projectKey,
                 scope.task.key,
-                concept,
+                conceptCopy,
                 true // retain temporary ids
               ).then(function (validationResults) {
                 var results = {
@@ -508,7 +508,8 @@ angular.module('singleConceptAuthoringApp')
                     }
                   }
                 });                
-                saveAllHelper(concepts);
+                //saveAllHelper(concepts);
+                bulkSaveConcepts(concepts);
               }, 1000);
 
           };
@@ -662,6 +663,143 @@ angular.module('singleConceptAuthoringApp')
             return deferred.promise;
 
           };
+
+          function bulkSaveConcepts (concepts) {
+            scope.warningConcepts = [];
+            scope.errorConcepts = [];
+            scope.validConcepts = [];
+            scope.template = null;
+            var originalConcepts = angular.copy(concepts);
+
+            // looking for error/warning/valid concepts from local
+            angular.forEach(concepts, function(concept, i) {              
+              if (componentAuthoringUtil.checkConceptComplete(concept).length > 0) {
+                concept.errorMsg = 'Incomplete';
+                scope.errorConcepts.push(concept);
+                scope.batchTableParams.reload();
+                $rootScope.$broadcast('batchEditing.conceptSavedWithErrors');
+              } else if (isDuplicatedConcept(concept, i, originalConcepts)) {
+                scope.warningConcepts.push(concept);
+              } else {
+                scope.validConcepts.push(concept);
+              }
+            });
+
+            // validate against Term-server for valid concepts
+            scope.validationResults = [];
+            var validateConcepts = function(concepts) {              
+              var deferred = $q.defer();              
+              var validateChunkConcepts = function(list, chunkSize) {
+                //Split list into what will be processed and what should be held
+                var processList = list.slice(0,chunkSize);
+                var holdList = list.slice(chunkSize);
+
+                var promises = [];
+                for (var i = 0; i < processList.length; i++) {
+                  promises.push(scope.validateConcept(processList[i]));
+                }
+                
+                $q.all(promises).then(function(responses) {
+                  scope.validationResults = scope.validationResults.concat(responses);
+                  if(holdList.length > 0) {
+                    validateChunkConcepts(holdList, chunkSize);
+                  } else {
+                    deferred.resolve(scope.validationResults);                   
+                  }             
+                });
+              }
+              validateChunkConcepts(concepts,10);
+              return deferred.promise;               
+            };
+            // end validation
+            scope.template = scope.validConcepts[0].template;
+            validateConcepts(scope.validConcepts).then(function(responses){
+              scope.validConcepts = [];
+              angular.forEach(responses, function(item) {
+                if (item.validation.hasErrors) {
+                  scope.errorConcepts.push(item);
+                  $rootScope.$broadcast('batchEditing.conceptSavedWithErrors');
+                } else if (item.validation.hasWarnings) {
+                  scope.warningConcepts.push(item);
+                } else {
+                  snowowlService.cleanConcept(item, snowowlService.isSctid(item.conceptId) ? true: false);
+                  scope.validConcepts.push(item);
+                }
+              });
+                          
+              if (scope.validConcepts.length > 0) {
+                var cloneConcepts = angular.copy(scope.validConcepts); 
+                var ids = [];
+                for (var i = 0; i < scope.validConcepts.length; i++) {              
+                  scope.validConcepts[i].tableAction = 'Saving...';
+                  scope.validConcepts[i].validation = null;
+                  ids.push(scope.validConcepts[i].conceptId);             
+                } 
+                 // bulk save concepts
+                snowowlService.bulkUpdateConcept(scope.branch,cloneConcepts,true).then(function(response){
+                  
+                  // save template for persisted concept
+                  var storeTemplateForConcepts = function(idList) {
+                    var deferred = $q.defer(); 
+                    var storeTemplateForChunkConcepts = function(list, chunkSize) {                   
+                      //Split list into what will be processed and what should be held
+                      var processList = list.slice(0,chunkSize);
+                      var holdList = list.slice(chunkSize);
+
+                      var promises = [];
+                      for (var i = 0; i < processList.length; i++) {
+                        promises.push(templateService.storeTemplateForConcept(scope.task.projectKey, processList[i], scope.template));
+                      }                      
+                      $q.all(promises).then(function() {                        
+                        if(holdList.length > 0) {
+                          storeTemplateForChunkConcepts(holdList, chunkSize);
+                        } else {
+                           deferred.resolve();
+                        }          
+                      });
+                    };
+                    storeTemplateForChunkConcepts(idList,10);
+                    return deferred.promise;   
+                  }
+                                      
+                  var promises = [];
+                  promises.push(storeTemplateForConcepts(response.conceptIds));
+                  promises.push(templateService.bulkLogTemplateConceptSave(scope.task.projectKey, response.conceptIds, scope.template));
+                  
+                  $q.all(promises).then(function() {                      
+                    
+                    // Remove concept from editing and table
+                    angular.forEach(ids, function(id) {
+                      batchEditingService.removeBatchConcept(id).then(function () {
+                        removeViewedConcept(id);
+                        scope.batchTableParams.reload();
+                      }, function (error) {
+                        notificationService.sendError('Unexpected error removing batch concept: ' + error);
+                      });
+                    });    
+                    $rootScope.$broadcast('batchEditing.batchSaveConceptsComplete', {numberSavedConcepts : scope.validConcepts.length});
+                  });          
+                }, function (error) {
+                  notificationService.sendError('Unexpected error saving batch concept: ' + error);
+                });
+              }
+
+              // Save all warning concepts one-by-one
+              if ( scope.warningConcepts.length > 0) {
+                saveAllHelper(scope.warningConcepts);
+              }
+            });                     
+          };          
+
+          function isDuplicatedConcept(concept, index, originalConcepts) {
+             angular.forEach(originalConcepts, function(originalConcept, i) {
+                if (concept.fsn === originalConcept.fsn && index !== i) {
+                  return true;
+                }
+             });
+
+             return false;
+          }
 
           scope.saveFunction  = function () {
             var deferred = $q.defer();
