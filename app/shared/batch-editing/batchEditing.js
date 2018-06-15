@@ -406,7 +406,7 @@ angular.module('singleConceptAuthoringApp')
           }
 
 
-          scope.validateConcept = function (concept) {
+          scope.validateConcept = function (concept, skipUpdateBatchUiState) {
             var deferred = $q.defer();
 
             concept.errorMsg = null;
@@ -422,7 +422,7 @@ angular.module('singleConceptAuthoringApp')
               concept.validation = validationResult;
               concept.tableAction = null;
 
-              batchEditingService.updateBatchConcept(concept, originalConceptId).then(function () {
+              batchEditingService.updateBatchConcept(concept, originalConceptId, skipUpdateBatchUiState).then(function () {
                 deferred.resolve(concept);
               }, function (error) {
                 deferred.reject(error);
@@ -483,9 +483,11 @@ angular.module('singleConceptAuthoringApp')
 
             }, function (error) {
               if (tableConcept) {
-                tableConcept.tableAction = null;
-                $rootScope.$broadcast('batchEditing.conceptSavedWithErrors');
+                tableConcept.tableAction = null;                
+              } else {
+                concept.tableAction = null;
               }
+              $rootScope.$broadcast('batchEditing.conceptSavedWithErrors');
               saveAllHelper(concepts.slice(1));
             });
           }
@@ -696,7 +698,7 @@ angular.module('singleConceptAuthoringApp')
 
                 var promises = [];
                 for (var i = 0; i < processList.length; i++) {
-                  promises.push(scope.validateConcept(processList[i]));
+                  promises.push(scope.validateConcept(processList[i],true));
                 }
                 
                 $q.all(promises).then(function(responses) {
@@ -726,7 +728,9 @@ angular.module('singleConceptAuthoringApp')
                   scope.validConcepts.push(item);
                 }
               });
-                          
+              // update state after validation
+              batchEditingService.updateBatchUiState();
+
               if (scope.validConcepts.length > 0) {
                 var cloneConcepts = angular.copy(scope.validConcepts); 
                 var ids = [];
@@ -770,13 +774,22 @@ angular.module('singleConceptAuthoringApp')
                       
                       // Remove concept from editing and table
                       angular.forEach(ids, function(id) {
-                        batchEditingService.removeBatchConcept(id).then(function () {
+                        batchEditingService.removeBatchConcept(id, true).then(function () {
                           removeViewedConcept(id);
                           scope.batchTableParams.reload();
                         }, function (error) {
                           notificationService.sendError('Unexpected error removing batch concept: ' + error);
                         });
-                      });    
+                      }); 
+                      
+                      // update state after remove
+                      batchEditingService.updateBatchUiState();
+
+                      // Save all warning concepts one-by-one
+                      if ( scope.warningConcepts.length > 0) {
+                        saveAllHelper(scope.warningConcepts);
+                      }
+   
                       $rootScope.$broadcast('batchEditing.batchSaveConceptsComplete', {numberSavedConcepts : scope.validConcepts.length});
                     });
                   });                            
@@ -786,7 +799,7 @@ angular.module('singleConceptAuthoringApp')
               }
 
               // Save all warning concepts one-by-one
-              if ( scope.warningConcepts.length > 0) {
+              if (scope.validConcepts.length == 0 && scope.warningConcepts.length > 0) {
                 saveAllHelper(scope.warningConcepts);
               }
             });                     
