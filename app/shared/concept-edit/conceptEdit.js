@@ -1150,17 +1150,7 @@ angular.module('singleConceptAuthoringApp').directive('conceptEdit', function ($
                       validation: scope.validation
                     });
                   }
-                  else if (scope.validation.hasWarnings) {
-                    for (var i = 0; i < $rootScope.reviewedIds.length; i++) {
-                      if (scope.concept.conceptId === $rootScope.reviewedIds[i]) {
-                        var message = '<p>Modified since approval</p>';
-                        var subjectConceptIds = [];
-                        subjectConceptIds.push(scope.concept.conceptId);
-                        scaService.addFeedbackToTaskReview($routeParams.projectKey, $routeParams.taskKey, message, subjectConceptIds, false);                       
-                        scaService.markTaskReviewInProgress($routeParams.projectKey, $routeParams.taskKey);                       
-                        break;
-                      }
-                    }
+                  else if (scope.validation.hasWarnings) {                    
                     notificationService.sendWarning('Concept saved, but contradictions of conventions were detected. Please review Convention Warnings.');
                     $rootScope.$broadcast('conceptEdit.validation', {
                       branch: scope.branch,
@@ -1169,17 +1159,7 @@ angular.module('singleConceptAuthoringApp').directive('conceptEdit', function ($
                       concept: scope.concept,
                       validation: scope.validation
                     });
-                  } else {
-                    for (var i = 0; i < $rootScope.reviewedIds.length; i++) {
-                      if (scope.concept.conceptId === $rootScope.reviewedIds[i]) {
-                        var message = '<p>Modified since approval</p>';
-                        var subjectConceptIds = [];
-                        subjectConceptIds.push(scope.concept.conceptId);
-                        scaService.addFeedbackToTaskReview($routeParams.projectKey, $routeParams.taskKey, message, subjectConceptIds, false);                       
-                        scaService.markTaskReviewInProgress($routeParams.projectKey, $routeParams.taskKey);                       
-                        break;
-                      }
-                    }
+                  } else {                    
                     notificationService.sendMessage('Concept saved: ' + scope.concept.fsn, 5000);
                     scope.focusHandler(true, false);
                   }
@@ -1188,6 +1168,7 @@ angular.module('singleConceptAuthoringApp').directive('conceptEdit', function ($
                   scope.focusHandler(true, false);
                   scope.computeAxioms(axiomType.ADDITIONAL);
                   scope.computeAxioms(axiomType.GCI);
+                  updateReviewFeedback();
                 }, function (error) {
                   notificationService.sendError('Error: Concept saved with warnings, but could not retrieve convention validation warnings');
                   scope.saving = false;
@@ -1228,6 +1209,25 @@ angular.module('singleConceptAuthoringApp').directive('conceptEdit', function ($
           });
         };
 
+// Update feedback
+        function updateReviewFeedback() {
+          scaService.getUiStateForReviewTask($routeParams.projectKey, $routeParams.taskKey, 'reviewed-list').then(function (response) {
+            var reviewedListIds = response;
+            for (var i = 0; i < reviewedListIds.length; i++) {
+              if (scope.concept.conceptId === reviewedListIds[i]) {
+                var message = '<p>Modified since approval</p>';
+                var subjectConceptIds = [];
+                subjectConceptIds.push(scope.concept.conceptId);
+                scaService.addFeedbackToTaskReview($routeParams.projectKey, $routeParams.taskKey, message, subjectConceptIds, false);                       
+                scaService.markTaskReviewInProgress($routeParams.projectKey, $routeParams.taskKey);
+                reviewedListIds.splice(i,1);                                      
+                break;
+              }
+            }
+            scaService.saveUiStateForReviewTask($routeParams.projectKey, $routeParams.taskKey, 'reviewed-list', reviewedListIds) ;
+          });
+        }
+        
 // function to toggle active status of concept
 // cascades to children components
 // NOTE: This function hard-saves the concept, to prevent sync errors
