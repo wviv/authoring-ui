@@ -667,6 +667,7 @@ angular.module('singleConceptAuthoringApp')
           };
 
           function bulkSaveConcepts (concepts) {
+            console.log("start time : " + (new Date()));
             scope.warningConcepts = [];
             scope.errorConcepts = [];
             scope.validConcepts = [];
@@ -716,6 +717,7 @@ angular.module('singleConceptAuthoringApp')
             // end validation
             scope.template = scope.validConcepts[0].template;
             validateConcepts(scope.validConcepts).then(function(responses){
+              console.log("validation finish time : " + (new Date()));
               scope.validConcepts = [];
               angular.forEach(responses, function(item) {
                 if (item.validation.hasErrors) {
@@ -742,6 +744,7 @@ angular.module('singleConceptAuthoringApp')
                  // bulk save concepts
                 snowowlService.bulkUpdateConcept(scope.branch,cloneConcepts,true).then(function(response){
                   snowowlService.bulkRetrieveFullConcept(response.conceptIds,scope.branch).then(function(concepts){
+                    console.log("bulk save finish time : " + (new Date()));
                     // save template for persisted concept
                     var storeTemplateForConcepts = function(idList) {
                       var deferred = $q.defer(); 
