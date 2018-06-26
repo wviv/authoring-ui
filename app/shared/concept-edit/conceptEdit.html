@@ -184,10 +184,14 @@
           </button>
           <button type="button"
                   class="btn-default editbuttons small-buttons deep-purple lighten-2 md md-history tooltips-bottom medium-size-tooltip offset-tooltip-right tooltips-light"
-                  ng-click="undoAll()" ng-if="!isStatic" ng-disabled="!isModified">
+                  ng-click="undoAll()" ng-if="!isStatic && !concept.released" ng-disabled="!isModified">
             <span>Revert to Saved</span>
           </button>
-
+          <button type="button"
+                  class="btn-default editbuttons small-buttons deep-purple lighten-2 md md-history tooltips-bottom medium-size-tooltip offset-tooltip-right tooltips-light"
+                  ng-click="revertToVersion()" ng-if="!isStatic && concept.released && role === 'AUTHOR'">
+            <span>Revert to version</span>
+          </button>
           <button type="button"
                   class="btn-default editbuttons small-buttons orange darken-3 md fa-sca fa-close tooltips-bottom large-size-tooltip offset-tooltip-right tooltips-light normal-case"
                   ng-click="removeConcept(concept)"><span>Remove concept from edit panel</span>
