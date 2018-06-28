@@ -152,6 +152,15 @@ angular.module('singleConceptAuthoringApp')
                 scope.approveAllConcepts();
               }
             });
+
+          hotkeys.bindTo(scope)
+            .add({
+              combo: 'alt+q',
+              description: 'Close all concepts',
+              callback: function() {
+                closeAllConcepts();
+              }
+            });
           
           // get the user information to determine role
           // values: AUTHOR, REVIEWER
@@ -537,8 +546,16 @@ angular.module('singleConceptAuthoringApp')
             approveAndLoadNext(concept);
           });
 
-           // Close all concepts listener
+           // Close all concepts listenerS
           scope.$on('closeAllOpenningConcepts', function () {
+            closeAllConcepts();
+          });
+
+          cope.$on('closeAllConceptsFromReview', function () {
+            closeAllConcepts();
+          });          
+
+          function closeAllConcepts () {
             scope.viewedConcepts = [];
             // mark as unviewed in ToReview list
             angular.forEach(scope.conceptsToReviewViewed, function (item) {              
@@ -553,7 +570,7 @@ angular.module('singleConceptAuthoringApp')
             angular.forEach(scope.conceptsClassified, function (item) {             
               item.viewed = false;            
             });
-          });
+          }
 
           function approveAndLoadNext (concept) { 
             var elementPos = 0;
