@@ -144,14 +144,14 @@ angular.module('singleConceptAuthoringApp')
               }
             });
           
-          hotkeys.bindTo(scope)
+          /*hotkeys.bindTo(scope)
             .add({
               combo: 'alt+a',
               description: 'Approve Concept',
               callback: function() {
                 scope.approveAllConcepts();
               }
-            });
+            });*/
 
           
           // get the user information to determine role
