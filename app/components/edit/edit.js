@@ -908,9 +908,9 @@ angular.module('singleConceptAuthoringApp.edit', [
         return;
       }
      
-      if($scope.thisView === 'feedback' 
+      if(!data.noSwitchView && ($scope.thisView === 'feedback' 
         || $scope.thisView === 'batch'
-        || $scope.thisView === 'inactivation') {
+        || $scope.thisView === 'inactivation')) {
         $scope.setView('edit-default');                 
       } 
       processUiStateUpdate(data.conceptId);
