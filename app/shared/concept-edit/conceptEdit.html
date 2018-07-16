@@ -177,18 +177,6 @@
                   ng-if="taxonomiesComparisonVisible"
                   ng-click="toggleShowTaxonomiesComparison()"><span> Show/hide taxonomies comparison </span>
           </button>
-
-          <ul class="dashboard-link-list" ng-if="axiomSupport && role === 'AUTHOR'">
-            <li>              
-              <div class="home-link pointerbtn-link withoutripple">
-                <span><i class="md md-menu"></i></span>                
-              </div>
-              <ul>
-                <li ng-click="addAdditionalAxiom()">Add Additional Axiom</li>
-                <li ng-click="addGCIAxiom()">Add GCI Axiom</li>                             
-              </ul>
-            </li>
-          </ul>
           <button ng-if="concept.definitionStatus === 'FULLY_DEFINED'"
                   ng-disabled="isStatic || isLockedModule(concept.moduleId)"
                   class="p-l-3 white-text primitive-buttons tooltips-bottom small-size-tooltip tooltips-light"
@@ -214,11 +202,21 @@
                     <textarea class="msd-elastic resizable-text no-border-bottom" ng-model-options="{updateOn: 'blur'}"
                               ng-model="field.value" type="text" placeholder="{{field}}" autofocus>
                     </textarea>
-          </div>
-          <button ng-init="isCollapsed = false" class="btn-default editbuttons small-buttons"
-                  ng-click="collapse(concept)"
-                  type="button"
-                  ng-class="[btn, btn-default, darkbuttons, grey, 'darken-4', 'toggle-buttons', md, {'fa-sca fa-caret-down' : isCollapsed, ' fa-sca fa-caret-up' : !isCollapsed}]"></button>
+          </div>          
+          <ul class="dashboard-link-list">
+            <li>              
+              <div class="home-link pointerbtn-link withoutripple" ng-init="isCollapsed = false">
+                <span><i class="btn-default editbuttons small-buttons 0 darken-4 toggle-buttons fa-sca fa-caret-up"
+                          ng-class="[{'fa-sca fa-caret-down' : isCollapsed, ' fa-sca fa-caret-up' : !isCollapsed}]"
+                          ng-click="collapse(concept)"></i></span>                
+              </div>
+              <ul ng-if="axiomSupport && role === 'AUTHOR'">
+                <li ng-click="addAdditionalAxiom()">Add Additional Axiom</li>
+                <li ng-click="addGCIAxiom()">Add GCI Axiom</li>                             
+              </ul>
+            </li>
+          </ul>
+
         </div>
       </div>    
       <div class="no-padding edits concept-title" ng-disabled="saving" ng-class="{'disabled': saving}">
