@@ -81,13 +81,7 @@
                 <li><a ng-click="copyToClipboard(concept.conceptId + ' |' + concept.fsn + '|')">Copy FSN and ConceptId</a></li>
                 <li><a ng-click="copyToClipboard(concept.conceptId + ' |' + getPerferredTerm() + '|')">Copy Term and ConceptId</a></li>
             </ul>
-          </div>          
-          <button type="button"
-                class="deep-purple lighten-2 btn-default md md-save tooltips-bottom editbuttons small-size-tooltip small-buttons"
-                ng-click="saveConcept()" 
-                ng-if="!isMerge && isModified && !isStatic">
-            <span> Save Concept </span>
-          </button>          
+          </div>
       </div>
 
       <!-- concept name -->
@@ -108,6 +102,12 @@
       <div class="no-margin edits concept-title col-md-4 pull-right no-padding" ng-disabled="saving"
            ng-class="{'disabled': saving}">
         <div class=" p-t-3 p-r-5 pull-right">
+          <button type="button"
+              class="deep-purple lighten-2 btn-default md md-save tooltips-bottom editbuttons small-size-tooltip small-buttons"
+              ng-click="saveConcept()"
+              ng-if="!isMerge && isModified && !isStatic">
+            <span> Save Concept </span>
+          </button>
           <button type="button"
                   class="btn-default save-button small-buttons red lighten-2 md md-assignment-turned-in tooltips-bottom tooltips-light normal-case "
                   ng-click="saveConcept()" ng-if="isMerge">
