@@ -13,7 +13,9 @@ angular.module('singleConceptAuthoringApp.transformModal', [])
             $scope.reasons.push(reason);
         }
     })
-    $scope.inactivationReason.id = 'OUTDATED';
+    $scope.inactivationReason ={
+        'id': 'OUTDATED'
+    }
     $scope.loading = false;
     
     if(!metadataService.isTemplatesEnabled()){
