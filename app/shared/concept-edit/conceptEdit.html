@@ -105,7 +105,8 @@
           <button type="button"
               class="deep-purple lighten-2 btn-default md md-save tooltips-bottom editbuttons small-size-tooltip small-buttons"
               ng-click="saveConcept()"
-              ng-if="!isMerge && isModified && !isStatic">
+              ng-if="!isMerge && !isStatic"
+              ng-disabled="!isModified">
             <span> Save Concept </span>
           </button>
           <button type="button"
@@ -128,17 +129,7 @@
                   class="btn-default editbuttons small-buttons tooltips-bottom tooltips-light large-size-tooltip normal-case"
                   ng-class="[{'red fa-sca fa-level-down' : !hideInactive}, {'fa-sca fa-level-up green' : hideInactive}]"
                   ng-click="toggleHideInactive()"><span> Show/hide inactive components </span>
-          </button>
-          <button type="button"
-                  class="btn-default editbuttons small-buttons amber md md-undo tooltips-bottom tooltips-light small-size-tooltip"
-                  ng-click="undo()" ng-disabled="conceptHistoryPtr < 1" ng-if="!isStatic">
-            <span>Undo Changes</span>
-          </button>
-          <button type="button"
-                  class="btn-default editbuttons small-buttons amber md md-redo tooltips-bottom tooltips-light small-size-tooltip"
-                  ng-click="redo()" ng-if="!isStatic" ng-disabled="conceptHistoryPtr === conceptHistory.length - 1">
-            <span>Redo Changes</span>
-          </button>
+          </button>          
           <button type="button"
                   class="btn-default editbuttons small-buttons deep-purple lighten-2 md md-history tooltips-bottom medium-size-tooltip offset-tooltip-right tooltips-light"
                   ng-click="undoAll()" ng-if="!isStatic && !concept.released" ng-disabled="!isModified">
@@ -172,12 +163,6 @@
                   <span ng-if="!showInferredRels"> Switch to inferred view </span>
                   <span ng-if="showInferredRels"> Switch to stated view </span>
           </button>          
-          <button type="button"
-                  class="btn-default editbuttons small-buttons tooltips-bottom tooltips-light large-size-tooltip offset-tooltip-right  normal-case md md-my-library-books"
-                  ng-class="[{'red' : showTaxonomyComparison}, {'green' : !showTaxonomyComparison}]"
-                  ng-if="taxonomiesComparisonVisible"
-                  ng-click="toggleShowTaxonomiesComparison()"><span> Show/hide taxonomies comparison </span>
-          </button>
           <button ng-if="concept.definitionStatus === 'FULLY_DEFINED'"
                   ng-disabled="isStatic || isLockedModule(concept.moduleId)"
                   class="p-l-3 white-text primitive-buttons tooltips-bottom small-size-tooltip tooltips-light"
@@ -196,6 +181,12 @@
             <span>Primitive</span>
           </button>
           <button type="button"
+                  class="btn-default editbuttons small-buttons tooltips-bottom tooltips-light large-size-tooltip offset-tooltip-right  normal-case md md-my-library-books"
+                  ng-class="[{'red' : showTaxonomyComparison}, {'green' : !showTaxonomyComparison}]"
+                  ng-if="taxonomiesComparisonVisible"
+                  ng-click="toggleShowTaxonomiesComparison()"><span> Show/hide taxonomies comparison </span>
+          </button>
+          <button type="button"
                   class="btn-default editbuttons small-buttons orange darken-3 md fa-sca fa-close tooltips-bottom large-size-tooltip offset-tooltip-right tooltips-light normal-case"
                   ng-click="removeConcept(concept)"><span>Remove concept from edit panel</span>
           </button>
@@ -211,9 +202,11 @@
                           ng-class="[{'fa-sca fa-caret-down' : isCollapsed, ' fa-sca fa-caret-up' : !isCollapsed}]"
                           ng-click="collapse(concept)"></i></span>                
               </div>
-              <ul ng-if="axiomSupport && role === 'AUTHOR'">
-                <li ng-click="addAdditionalAxiom()">Add Additional Axiom</li>
-                <li ng-click="addGCIAxiom()">Add GCI Axiom</li>                             
+              <ul ng-if="(axiomSupport && role === 'AUTHOR') || !isStatic">
+                <li ng-click="addAdditionalAxiom()" ng-if="axiomSupport && role === 'AUTHOR'">Add Additional Axiom</li>
+                <li ng-click="addGCIAxiom()" ng-if="axiomSupport && role === 'AUTHOR'">Add GCI Axiom</li>
+                <li ng-click="undo()" ng-disabled="conceptHistoryPtr < 1" ng-if="!isStatic">Undo Changes</li>
+                <li ng-click="redo()" ng-disabled="conceptHistoryPtr === conceptHistory.length - 1" ng-if="!isStatic">Redo Changes</li>                             
               </ul>
             </li>
           </ul>
