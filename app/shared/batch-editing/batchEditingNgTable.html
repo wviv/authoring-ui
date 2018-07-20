@@ -85,24 +85,10 @@
   <div ng-if="transform">
       <div class="row no-padding no-gutter" ng-repeat="concept in viewedConcepts">
         <div class="col-md-6">
-          <div concept-edit 
-               concept="beforeConcept" 
-               branch="parentBranch" 
-               autosave="false" batch="true" 
-               update-concept-reference="updateConceptReference(concept)" 
-               show-inactive="true"
-               save-function="saveFunction()" 
-               static="true"></div>
+          <div concept-edit concept="beforeConcept" branch="parentBranch" autosave="false" batch="true" update-concept-reference="updateConceptReference(concept)" save-function="saveFunction()" static="true"></div>
         </div>
         <div class="col-md-6">
-          <div concept-edit 
-               concept="concept" 
-               branch="branch" 
-               autosave="false" 
-               batch="true" 
-               update-concept-reference="updateConceptReference(concept)" 
-               show-inactive="true"
-               save-function="saveFunction()"></div>
+          <div concept-edit concept="concept" branch="branch" autosave="false" batch="true" update-concept-reference="updateConceptReference(concept)" save-function="saveFunction()"></div>
         </div>
       </div>
   </div>
