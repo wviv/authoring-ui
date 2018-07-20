@@ -373,6 +373,8 @@ angular.module('singleConceptAuthoringApp.searchPanel', [])
           item.selected = isChecked;
         });
 
+        $scope.downloadAllResults = true;
+
         $scope.selectionCheck();
       };
 
