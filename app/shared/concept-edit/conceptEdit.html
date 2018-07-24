@@ -130,14 +130,17 @@
                   ng-class="[{'red fa-sca fa-level-down' : !hideInactive}, {'fa-sca fa-level-up green' : hideInactive}]"
                   ng-click="toggleHideInactive()"><span> Show/hide inactive components </span>
           </button>          
+          <!--
           <button type="button"
                   class="btn-default editbuttons small-buttons deep-purple lighten-2 md md-history tooltips-bottom medium-size-tooltip offset-tooltip-right tooltips-light"
                   ng-click="undoAll()" ng-if="!isStatic && !concept.released" ng-disabled="!isModified">
             <span>Revert to Saved</span>
           </button>
+          -->
           <button type="button"
                   class="btn-default editbuttons small-buttons deep-purple lighten-2 md md-history tooltips-bottom medium-size-tooltip offset-tooltip-right tooltips-light"
-                  ng-click="revertToVersion()" ng-if="!isStatic && concept.released && role === 'AUTHOR'">
+                  ng-click="revertToVersion()" ng-if="!isStatic && role === 'AUTHOR'"
+                  ng-disabled="!isSctid(concept.conceptId) || !concept.active">
             <span>Revert to version</span>
           </button>
           <button type="button"
