@@ -185,7 +185,16 @@ angular.module('singleConceptAuthoringApp.project', [
                   if (!response.metadata || response.metadata && !response.metadata.lock) {
                     notificationService.sendMessage('Promoting project...');
                     scaService.promoteProject($routeParams.projectKey).then(function (response) {                      
-                      $scope.getProject();
+                      if (response.status === 'CONFLICTS') {
+                        var merge = JSON.parse(response.message);
+                        snowowlService.searchMerge(merge.source, merge.target, 'CONFLICTS').then( function(response) {
+                          if (response && response.items && response.items.length > 0) {
+                            // show conflicts
+                          }
+                        });
+                      } else {
+                        $scope.getProject();
+                      }
                     });
                   }
                   else {
@@ -221,7 +230,16 @@ angular.module('singleConceptAuthoringApp.project', [
                       if (!response.metadata || response.metadata && !response.metadata.lock) {
                         notificationService.sendMessage('Promoting project...');
                         scaService.promoteProject($routeParams.projectKey).then(function (response) {                          
-                          $scope.getProject();
+                          if (response.status === 'CONFLICTS') {
+                            var merge = JSON.parse(response.message);
+                            snowowlService.searchMerge(merge.source, merge.target, 'CONFLICTS').then( function(response) {
+                              if (response && response.items && response.items.length > 0) {
+                                // show conflicts
+                              }
+                            });
+                          } else {
+                            $scope.getProject();
+                          }                          
                         });
                       }
                       else {

@@ -1806,6 +1806,14 @@ angular.module('singleConceptAuthoringApp')
           apiEndpoint = url;
       }
 
+      function searchMerge (source, target, status) {       
+        return $http.get(apiEndpoint + 'searchMerge?' + 'source=' + source + '&target=' + target + '&status=' + status).then(function (response) {
+          var mergeReview = response.data;         
+          return mergeReview;
+        }, function (error) {
+          return null;
+        });
+      }
       ////////////////////////////////////////////
       // Method Visibility
       // TODO All methods currently visible!
@@ -1897,7 +1905,8 @@ angular.module('singleConceptAuthoringApp')
         cleanConcept: cleanConcept,
         cleanDescription: cleanDescription,
         cleanRelationship: cleanRelationship,
-        setEndpoint: setEndpoint
+        setEndpoint: setEndpoint,
+        searchMerge: searchMerge
       };
     }
 

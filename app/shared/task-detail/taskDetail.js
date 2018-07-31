@@ -73,9 +73,19 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
           if (!warningsFound) {
             notificationService.sendMessage('Promoting task...');           
             promotionService.promoteTask($routeParams.projectKey, $routeParams.taskKey).then(function (response) {
-              $rootScope.$broadcast('reloadTask');
+              if (response.status === 'CONFLICTS') {
+                var merge = JSON.parse(response.message);
+                snowowlService.searchMerge(merge.source, merge.target, 'CONFLICTS').then( function(response) {
+                  if (response && response.items && response.items.length > 0) {
+                    // show conflicts
+                  }
+                });
+              } else {
+                $rootScope.$broadcast('reloadTask');
+              }              
             }, function (error) {
               $scope.promoting = false;
+              notificationService.sendError('Error promoting task to project: ' + error);
             });
           } else {
 
@@ -98,9 +108,19 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
               if (proceed) {
                 notificationService.sendMessage('Promoting task...');              
                 promotionService.promoteTask($routeParams.projectKey, $routeParams.taskKey).then(function (response) {
-                  $rootScope.$broadcast('reloadTask');
+                  if (response.status === 'CONFLICTS') {
+                    var merge = JSON.parse(response.message);
+                    snowowlService.searchMerge(merge.source, merge.target, 'CONFLICTS').then( function(response) {
+                      if (response && response.items && response.items.length > 0) {
+                        // show conflicts
+                      }
+                    });
+                  } else {
+                    $rootScope.$broadcast('reloadTask');
+                  }
                 }, function (error) {
                   $scope.promoting = false;
+                   notificationService.sendError('Error promoting task to project: ' + error);
                 });
               } else {
                 notificationService.clear();
