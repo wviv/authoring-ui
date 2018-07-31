@@ -1030,7 +1030,9 @@ div.search-result:hover {
     background-color: #424249;
     color: #76747c;
 }
-
+.load-performed .fa-random.tooltips-top:hover span {
+    margin-left: -32px;
+}
 .editing-form .triangle-redhl {
     border-top: 9px solid red;
     border-left: 9px solid transparent;
