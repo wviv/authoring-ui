@@ -1026,6 +1026,11 @@ div.search-result:hover {
     background-color: #c13244;
     color: #fff;
 }
+.search-scroll .load-performed a[disabled]{
+    background-color: #424249;
+    color: #76747c;
+}
+
 .editing-form .triangle-redhl {
     border-top: 9px solid red;
     border-left: 9px solid transparent;
