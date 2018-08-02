@@ -189,7 +189,18 @@ angular.module('singleConceptAuthoringApp.project', [
                         var merge = JSON.parse(response.message);
                         snowowlService.searchMerge(merge.source, merge.target, 'CONFLICTS').then( function(response) {
                           if (response && response.items && response.items.length > 0) {
-                            // show conflicts
+                            var msg = '';
+                            angular.forEach(response.items, function (item) {
+                              angular.forEach(item.conflicts, function (conflict) {
+                                if (msg.length > 0) {
+                                  msg = msg + '<br />';
+                                }
+                                msg += conflict.message;
+                              });
+                            });
+                            if (msg.length > 0) {
+                              notificationService.sendError('Confilcts : ' + msg);
+                            }
                           }
                         });
                       } else {
@@ -234,7 +245,18 @@ angular.module('singleConceptAuthoringApp.project', [
                             var merge = JSON.parse(response.message);
                             snowowlService.searchMerge(merge.source, merge.target, 'CONFLICTS').then( function(response) {
                               if (response && response.items && response.items.length > 0) {
-                                // show conflicts
+                                var msg = '';
+                                angular.forEach(response.items, function (item) {
+                                  angular.forEach(item.conflicts, function (conflict) {
+                                    if (msg.length > 0) {
+                                      msg = msg + '<br />';
+                                    }
+                                    msg += conflict.message;
+                                  });
+                                });
+                                if (msg.length > 0) {
+                                  notificationService.sendError('Confilcts : ' + msg);
+                                }
                               }
                             });
                           } else {
