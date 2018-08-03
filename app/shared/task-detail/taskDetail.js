@@ -170,6 +170,7 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
         notificationService.sendMessage('Preparing for task promotion automation...');       
         $scope.automatePromotionErrorMsg = '';        
         $scope.automatePromotionStatus = '';
+        $scope.isAutomatePromotionRunning = true;
         
         /* Check unsaved concepts*/
         scaService.getUiStateForTask($routeParams.projectKey, $routeParams.taskKey, 'edit-panel')
@@ -188,6 +189,7 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
                 if (hasUnsavedConcept) {
                   notificationService.clear();                  
                   modalService.message('There are some unsaved concepts. Please save them before promoting task automation.');
+                  $scope.isAutomatePromotionRunning = false;
                 } else {
                   validateReviewStatus();
                 }
@@ -243,10 +245,12 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
               if (proceed) {
                 promoteTaskAutomation();
               } else {
-                notificationService.clear();               
+                notificationService.clear();
+                $scope.isAutomatePromotionRunning = false;             
               }
             }, function () {
-              notificationService.clear();            
+              notificationService.clear();
+              $scope.isAutomatePromotionRunning = false;          
             });
           }
           
@@ -259,6 +263,7 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
             $scope.checkAutomatePromotionStatus(false);
           }, function (error) {
             $scope.automatePromotionStatus = '';
+            $scope.isAutomatePromotionRunning = false;
           }
         );
       }
@@ -440,18 +445,10 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
         });
 
       };
-      $scope.isAutomatePromotionRunning = function (){
-        if($scope.automatePromotionStatus === 'Rebasing' 
-          || $scope.automatePromotionStatus === 'Classifying' 
-          || $scope.automatePromotionStatus === 'Promoting') {
-          return true;
-        }
-        return false;
-      }
-
+      
       $scope.checkAutomatePromotionStatus = function (isInitialInvoke) {       
         $scope.automatePromotionErrorMsg = '';        
-        promotionService.getAutomatePromotionStatus($routeParams.projectKey, $routeParams.taskKey).then(function (response) {        
+        promotionService.getAutomatePromotionStatus($routeParams.projectKey, $routeParams.taskKey).then(function (response) {       
           if (response) {
             $scope.automatePromotionStatus = response.status;
             switch ($scope.automatePromotionStatus) {
@@ -530,7 +527,10 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
           }
           if(isInitialInvoke && $scope.automatePromotionStatus === '') {
             $scope.checkForLock();
-          }  
+          }
+
+          // This local flag will no longer use after getting the state from back-end 
+          $scope.isAutomatePromotionRunning = false; 
         });
       };
 
