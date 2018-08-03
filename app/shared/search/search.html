@@ -292,7 +292,7 @@
     <a ng-show="loadPerformed" ng-disabled="!results.length || !downloadButtonActive" class="btn btn-primary col-md-2 fa fa-download tooltips-top large-size-tooltip offset-tooltip-right white-icon" ng-click="downloadResultFilter()">
       <span class="tooltip-dl">Download Selected Results</span>
     </a>
-    <a ng-show="loadPerformed" ng-if="userOptions.model === 'lexical'" ng-disabled="!results.length || !downloadButtonActive || !templateMode" class="btn col-md-2 fa fa-random green tooltips-top large-size-tooltip white-icon" ng-click="openTransformModal()">
+    <a ng-show="loadPerformed" ng-if="userOptions.model === 'lexical'" ng-disabled="!results.length || !downloadButtonActive || !templateMode" class="btn col-md-2 fa fa-random green tooltips-top large-size-tooltip white-icon transform" ng-click="openTransformModal()">
       <span class="tooltip-dl">Transform</span>
     </a>
   </div>
