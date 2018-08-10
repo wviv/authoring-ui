@@ -381,7 +381,9 @@ angular.module('singleConceptAuthoringApp')
 
           // cancel review
           scope.cancelReview = function () {
-              if(scope.feedbackContainer.review.conceptsReviewed.length > 0){
+            scaService.getUiStateForReviewTask($routeParams.projectKey, $routeParams.taskKey, 'reviewed-list').then(function (response) {
+              var list = response;
+              if(list && list.length > 0) {
                   modalService.confirm('There are ' + scope.feedbackContainer.review.conceptsReviewed.length + ' approved concepts in the review. Cancelling will reset all concepts to unapproved and will require all concepts to be (re-)approved in a new review. To keep the approved work, please ask the reviewer to unclaim the review. Are you sure you want to cancel this review?').then(function () {
                     var taskObj = {
                         'status': 'IN_PROGRESS',
@@ -437,7 +439,8 @@ angular.module('singleConceptAuthoringApp')
                       });
                     });
                 }
-              };
+            });              
+          };
 
           // controls to allow author to view only concepts with feedeback
           scope.viewOnlyConceptsWithFeedback = true;
