@@ -460,7 +460,7 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
       $scope.checkAutomatePromotionStatus = function (isInitialInvoke) {       
         $scope.automatePromotionErrorMsg = '';        
         promotionService.getAutomatePromotionStatus($routeParams.projectKey, $routeParams.taskKey).then(function (response) {       
-          if (response) {
+          if (response && $scope.task.status !== 'Promoted') {
             $scope.automatePromotionStatus = response.status;
             switch ($scope.automatePromotionStatus) {
               case 'Queued':                
@@ -474,6 +474,10 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
                 notificationService.clear();
                 break;
               case 'Rebased with conflicts':
+                if ($scope.task.branchState === 'FORWARD'
+                    || $scope.task.branchState === 'UP_TO_DATE') {
+                  break;
+                }
                 $rootScope.branchLocked = false;
                 $rootScope.automatedPromotionInQueued = false;                              
                 $scope.automatePromotionErrorMsg = 'Merge conflicts detected during automated promotion. Please rebase task manually, resolve merge conflicts and then restart automation.';
