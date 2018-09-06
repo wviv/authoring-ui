@@ -429,11 +429,7 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
       $scope.checkForLock = function () {
 
         snowowlService.getBranch($scope.branch).then(function (response) {
-          if($scope.classificationLockCheck){
-            $timeout(function () {
-              $scope.checkForLock();
-            }, 10000);
-           }
+          
           // if lock found, set rootscope variable and continue polling
           if (response.metadata && response.metadata.lock) {
             if(response.metadata.lock.context.description === 'classifying the ontology')
@@ -444,14 +440,24 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
             $timeout(function () {
               $scope.checkForLock();
             }, 10000);
-           }
-          else if($scope.classificationLockCheck && !$scope.ontologyLock){
-            $timeout(function () {
-              $scope.checkForLock();
-            }, 10000);
-           }
+           }         
           else {
-            $rootScope.branchLocked = false;
+            snowowlService.getClassificationsForTask($routeParams.projectKey, $routeParams.taskKey).then(function (response) {
+              if (response && response.length > 0) {
+                var item = response[response.length -1];
+                if (item.status === 'SCHEDULED' || item.status === 'RUNNING') {
+                  $rootScope.branchLocked = true;
+                  $timeout(function () {
+                    $scope.checkForLock();
+                  }, 10000);
+                } else {
+                  $rootScope.branchLocked = false;
+                }                
+              } else {
+                $rootScope.branchLocked = false;
+              }
+            });
+            
           }
         });
 
@@ -592,7 +598,6 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
         // retrieve the task
         scaService.getTaskForProject($routeParams.projectKey, $routeParams.taskKey).then(function (response) {
           $scope.task = response;
-          $scope.classificationLockCheck = false;
           $scope.ontologyLock = $rootScope.classificationRunning;
           $scope.checkAutomatePromotionStatus(true);
 
