@@ -38,6 +38,7 @@ angular.module('singleConceptAuthoringApp.searchPanel', [])
       $scope.loadPerformed = false;
       $scope.loadMoreEnabled = false;
       $scope.searchStr = '';
+      $scope.searchAfterId = null;
 
       // the displayed results
       $scope.results = [];
@@ -499,6 +500,7 @@ angular.module('singleConceptAuthoringApp.searchPanel', [])
         if (!$scope.results || !appendResults) {
           $scope.results = [];
           $scope.searchTotal = null;
+          $scope.searchAfterId = null;
         }
 
         // get metadata-specific options
@@ -557,11 +559,12 @@ angular.module('singleConceptAuthoringApp.searchPanel', [])
             templateService.searchByTemplate($scope.userOptions.template.name, $scope.branch, $scope.userOptions.statedSelection, $scope.userOptions.model).then(function(results){
                 $scope.batchIdList = results.data;
                 if(results.data.length > 0){
-                    snowowlService.searchAllConcepts($scope.branch, $scope.searchStr, $scope.escgExpr, $scope.results.length, $scope.resultsSize, !fsnSearchFlag, acceptLanguageValue, activeFilter, false, $scope.userOptions.defintionSelection, $scope.userOptions.statedSelection, results.data).then(function (results) {
+                    snowowlService.searchAllConcepts($scope.branch, $scope.searchStr, $scope.escgExpr, $scope.searchAfterId, $scope.resultsSize, !fsnSearchFlag, acceptLanguageValue, activeFilter, false, $scope.userOptions.defintionSelection, $scope.userOptions.statedSelection, results.data).then(function (results) {
                         if (!results) {
                             notificationService.sendError('Unexpected error searching for concepts', 10000);
                           }
 
+                          $scope.searchAfterId = results.searchAfter;
                           $scope.loadPerformed = true;
 
                           if(results.total || $scope.escgExpr) {
@@ -589,12 +592,13 @@ angular.module('singleConceptAuthoringApp.searchPanel', [])
         }
         else{
 
-        snowowlService.searchAllConcepts($scope.branch, $scope.searchStr, $scope.escgExpr, $scope.results.length, $scope.resultsSize, !fsnSearchFlag, acceptLanguageValue, activeFilter, false, $scope.userOptions.defintionSelection, $scope.userOptions.statedSelection).then(function (results) {
+        snowowlService.searchAllConcepts($scope.branch, $scope.searchStr, $scope.escgExpr, $scope.searchAfterId, $scope.resultsSize, !fsnSearchFlag, acceptLanguageValue, activeFilter, false, $scope.userOptions.defintionSelection, $scope.userOptions.statedSelection).then(function (results) {
 
           if (!results) {
             notificationService.sendError('Unexpected error searching for concepts', 10000);
           }
-
+          
+          $scope.searchAfterId = results.searchAfter;
           $scope.loadPerformed = true;
 
           if(results.total || $scope.escgExpr) {
@@ -668,7 +672,7 @@ angular.module('singleConceptAuthoringApp.searchPanel', [])
         if (!$scope.results || !appendResults) {
           $scope.results = [];
         }
-
+        
         // get metadata-specific options
         // TODO Later this will be sensitive to international/extension toggling
         // For now, just use the current module id (i.e. the extension module id if it exists, otherwise the international module id)
@@ -727,7 +731,7 @@ angular.module('singleConceptAuthoringApp.searchPanel', [])
               if (!concepts) {
                 notificationService.sendError('Unexpected error searching for concepts', 10000);
               }
-
+              
               // set load more parameters
               $scope.loadPerformed = true;
               $scope.loadMoreEnabled = concepts.length === $scope.resultsSize;
@@ -815,7 +819,7 @@ angular.module('singleConceptAuthoringApp.searchPanel', [])
        * Function to load another page of results
        */
       $scope.loadMore = function () {
-        $scope.newSearch(true); // search in append mode
+        $scope.newSearch($scope.searchAfterId); // search in append mode
       };
 
       /**

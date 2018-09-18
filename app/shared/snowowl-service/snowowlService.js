@@ -917,12 +917,12 @@ angular.module('singleConceptAuthoringApp')
         };
       }
 
-      function searchAllConcepts(branch, termFilter, escgExpr, offset, limit, syn, lang, activeFilter, tsv, definitionStatus, view, conceptIdList) {
+      function searchAllConcepts(branch, termFilter, escgExpr, searchAfter, limit, syn, lang, activeFilter, tsv, definitionStatus, view, conceptIdList) {
         let deferred = $q.defer();
         let config = {};
 
         let params = {
-          offset: offset ? offset : '0',
+          // offset: offset ? offset : '0',
           limit: limit ? limit : '50',
           expand: 'fsn()'
         };
@@ -937,6 +937,10 @@ angular.module('singleConceptAuthoringApp')
           }
         }
 
+        if(searchAfter) {
+          params.searchAfter = searchAfter;
+        }
+        
         if(syn){
           params.expand = 'pt()';
         }
@@ -947,7 +951,7 @@ angular.module('singleConceptAuthoringApp')
 
         if(tsv) {
           config.headers['Accept'] = 'text/csv';
-          params.offset = 0;
+          // params.offset = 0;
           params.limit = 10000;
           params.expand = 'pt(),fsn()';
         }
@@ -1108,7 +1112,7 @@ angular.module('singleConceptAuthoringApp')
           params.termFilter = termFilter;
 
           $http.post(apiEndpoint + branch + '/concepts/search', params, config).then(function (response) {
-
+            
             if(tsv) {
               deferred.resolve(response);
             }
