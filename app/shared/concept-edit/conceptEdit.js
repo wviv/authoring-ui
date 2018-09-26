@@ -3536,24 +3536,12 @@ angular.module('singleConceptAuthoringApp').directive('conceptEdit', function ($
                 }
               });
 
-              // For Irish extension, the FSN must have 3 dialects that need to populate acceptability values rather than 
-              // one acceptability (US) for other extensions
-              if (metadataService.isExtensionSet() && metadataService.getExtensionMetadata().modules[0].id === '11000220105' /*Irish module*/) {
-                // ensure all dialects returned from metadata are preferred
-                angular.forEach(scope.getDialectIdsForDescription(description, false), function (dialectId) {
-                  if (!scope.checkReadOnlyDialect(dialectId)) {
-                    description.acceptabilityMap[dialectId] = 'PREFERRED';
-                  }                  
-                });
-              } else {
-                // ensure all dialects returned from metadata are preferred
-                angular.forEach(scope.getDialectIdsForDescription(description, true), function (dialectId) {
-                  description.acceptabilityMap[dialectId] = 'PREFERRED';
-                });
-                
-                if(metadataService.isExtensionSet()){
-                    delete description.acceptabilityMap['900000000000508004'];
-                }
+              // ensure all dialects returned from metadata are preferred
+              angular.forEach(scope.getDialectIdsForDescription(description, true), function (dialectId) {
+                description.acceptabilityMap[dialectId] = 'PREFERRED';
+              });
+              if(metadataService.isExtensionSet()){
+                  delete description.acceptabilityMap['900000000000508004'];
               }
               if(!description.caseSignificance) {
                 description.caseSignificance = 'CASE_INSENSITIVE';
