@@ -232,7 +232,7 @@ angular.module('singleConceptAuthoringApp')
 
                   if (searchStr) {
                     myData = scope.feedbackContainer.review.conceptsToReview.filter(function (item) {
-                      return item.term.toLowerCase().indexOf(searchStr.toLowerCase()) > -1;
+                      return item.term && item.term.toLowerCase().indexOf(searchStr.toLowerCase()) > -1;
                     });
                   } else {
                     myData = scope.feedbackContainer.review.conceptsToReview;
@@ -302,7 +302,7 @@ angular.module('singleConceptAuthoringApp')
 
                   if (searchStr) {
                     myData = scope.feedbackContainer.review.conceptsClassified.filter(function (item) {
-                      return item.term.toLowerCase().indexOf(searchStr.toLowerCase()) > -1;
+                      return item.term && item.term.toLowerCase().indexOf(searchStr.toLowerCase()) > -1;
                     });
                   } else {
                     myData = scope.feedbackContainer.review.conceptsClassified;
@@ -342,7 +342,7 @@ angular.module('singleConceptAuthoringApp')
 
                   if (searchStr) {
                     myData = scope.feedbackContainer.review.conceptsReviewed.filter(function (item) {
-                      return item.term.toLowerCase().indexOf(searchStr.toLowerCase()) > -1;
+                      return item.term && item.term.toLowerCase().indexOf(searchStr.toLowerCase()) > -1;
                     });
                   } else {
                     myData = scope.feedbackContainer.review.conceptsReviewed;
