@@ -112,6 +112,20 @@ angular.module('singleConceptAuthoringApp.home', [
                             mydata.sort(function (a, b) {
                                return sortFeedbackFn(a,b,'desc');                    
                             });                         
+                        } else {
+                            // do nothing
+                        }
+
+                        if(params.sorting().status === 'asc'){                           
+                            mydata.sort(function (a, b) {
+                                return sortStatusFn(a,b,'asc');
+                            });                        
+                        } else if(params.sorting().status === 'desc') {
+                            mydata.sort(function (a, b) {
+                               return sortStatusFn(a,b,'desc');                    
+                            });                         
+                        } else {
+                            // do nothing
                         }
 
                         $defer.resolve(mydata.slice((params.page() - 1) * params.count(), params.page() * params.count()));
@@ -142,6 +156,22 @@ angular.module('singleConceptAuthoringApp.home', [
             } else {
                 return 0;
             }
+        }
+
+        function sortStatusFn (a, b, direction) {
+            a.tempStatus = (a.status == 'In Review' && !a.reviewer) ? 'Ready for Review' : a.status;
+            b.tempStatus = (b.status == 'In Review' && !b.reviewer) ? 'Ready for Review' : b.status;
+            if (direction === 'asc') {
+                var result = a.tempStatus.localeCompare(b.tempStatus); 
+                delete a.tempStatus;
+                delete b.tempStatus; 
+                return result;  
+            } else {
+                var result = b.tempStatus.localeCompare(a.tempStatus);
+                delete a.tempStatus;
+                delete b.tempStatus;
+                return result;  
+            } 
         }
 
         $scope.toggleShowPromotedTasks = function () {
