@@ -39,7 +39,7 @@ angular.module('singleConceptAuthoringApp')
           scope.editedConcept = null;
 
           // children and parents (convenience arrays)
-          scope.inactivationConceptChildren = [];
+          scope.newTargetConceptParents = [];
           scope.inactivationConceptParents = [];
 
           // table filtering (across all tabs)
@@ -952,7 +952,36 @@ angular.module('singleConceptAuthoringApp')
                 newRel.released = false;
                 newRel.target.conceptId = innerConcept.conceptId;
                 newRel.target.fsn = innerConcept.fsn;
-                concept.relationships.push(newRel);
+                
+                if (metadataService.isIsaRelationship(newRel.type.conceptId)) {
+                  // check source and new target of incoming IS A relationship are the same or not
+                  let flag = false;    
+                  angular.forEach(concept.relationships, function (otherRel) {                      
+                    if (otherRel.active
+                      && otherRel.relationshipId
+                      && otherRel.characteristicType === 'STATED_RELATIONSHIP'
+                      && metadataService.isIsaRelationship(otherRel.type.conceptId)
+                      && newRel.characteristicType === 'STATED_RELATIONSHIP'
+                      && newRel.type.conceptId === otherRel.type.conceptId
+                      && newRel.target.conceptId === otherRel.target.conceptId
+                      && newRel.groupId === otherRel.groupId) {
+                      flag = true;
+                    }
+                 });                  
+
+                  if (flag && scope.newTargetConceptParents.length > 0) {
+                    for (let index = 0; index < scope.newTargetConceptParents.length; index++) {
+                      var copyiedRel = angular.copy(newRel);
+                      copyiedRel.target.conceptId = scope.newTargetConceptParents[index].concept.conceptId;
+                      copyiedRel.target.fsn = scope.newTargetConceptParents[index].concept.fsn;
+                      concept.relationships.push(copyiedRel);
+                    }
+                  } else {
+                    concept.relationships.push(newRel);
+                  }                  
+                } else {
+                  concept.relationships.push(newRel);
+                }
                 rel.active = 0;
               });
             }
@@ -990,6 +1019,22 @@ angular.module('singleConceptAuthoringApp')
               }
             }
             deferred.resolve();
+            return deferred.promise;
+          }
+
+          function getNewTargetConceptParents() {
+            var deferred = $q.defer();
+            var assocs = inactivationService.getAssocs();
+            if (Object.keys(assocs).length > 0) {
+              var ids = assocs[Object.keys(assocs)[0]];
+              snowowlService.searchAllConcepts(scope.branch,'','>!' + ids[0], null, null, null, null, null, null, null, 'stated', null).then(function (parents) {
+                deferred.resolve(parents.items);
+              }, function () {
+                deferred.resolve([]);
+              });
+            } else {
+              deferred.resolve([]);
+            }            
             return deferred.promise;
           }
 
@@ -1230,9 +1275,8 @@ angular.module('singleConceptAuthoringApp')
             });
 
 
-            // ensure that children have been retrieved
-            snowowlService.getStatedConceptChildren(scope.inactivationConcept.conceptId, scope.branch).then(function (children) {
-              scope.inactivationConceptChildren = children;
+            getNewTargetConceptParents().then(function (parents) {
+              scope.newTargetConceptParents = parents;
               notificationService.sendMessage('Retrieving inbound relationships...');
               getAffectedObjectIds().then(function () {
                 notificationService.sendMessage('Retrieving affected associations...');
