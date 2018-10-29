@@ -198,6 +198,9 @@ angular
         // get the account details
         accountService.getAccount(accountUrl).then(function (account) {
 
+          // begin polling the sca endpoint at 10s intervals          
+          scaService.startPolling(account.login);
+
           // get the user preferences (once logged in status confirmed)
           accountService.getUserPreferences().then(function (preferences) {
 
@@ -217,11 +220,8 @@ angular
           accountService.applyUserPreferences(preferences).then(function (appliedPreferences) {
 
           })
-        });
-          
-        // begin polling the sca endpoint at 10s intervals
-          
-        scaService.startPolling(10000);
+        });         
+        
 
         ///////////////////////////////////////////
         // Cache local data
