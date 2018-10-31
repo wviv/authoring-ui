@@ -434,6 +434,15 @@ angular.module('singleConceptAuthoringApp')
 
       }
 
+      function makeSnowstormResponseCompatible(items) {
+        angular.forEach(items, function(conceptMini) {
+          if (typeof conceptMini.fsn == "object") {
+            // Flatten Snowstorm FSN data structure
+            conceptMini.fsn = conceptMini.fsn.term;
+          }
+        });
+      }
+
       // Retrieve parents of a concept
       // GET /{path}/concepts/{conceptId}/parents
       function getConceptParents(conceptId, branch, acceptLanguageValue, synonymFlag, statedFlag) {
@@ -462,6 +471,7 @@ angular.module('singleConceptAuthoringApp')
 
         // call and return promise
         return $http.get(apiEndpoint + 'browser/' + branch + '/concepts/' + conceptId + '/parents' + (queryParams ? '?' + queryParams : ''), config).then(function (response) {
+          makeSnowstormResponseCompatible(response.data);
           return response.data;
         }, function (error) {
           // TODO Handle error
@@ -507,6 +517,7 @@ angular.module('singleConceptAuthoringApp')
 
         // call and return promise
         return $http.get(apiEndpoint + 'browser/' + branch + '/concepts/' + conceptId + '/children' + (queryParams ? '?' + queryParams : ''), config).then(function (response) {
+          makeSnowstormResponseCompatible(response.data);
           return response.data;
         }, function (error) {
           // TODO Handle error
