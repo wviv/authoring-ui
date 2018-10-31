@@ -3,7 +3,7 @@
 angular.module('singleConceptAuthoringApp')
   .service('snowowlService', ['$http', '$q', '$timeout', 'notificationService', 'metadataService',
     function ($http, $q, $timeout, notificationService, metadataService) {
-      var apiEndpoint = '../snowowl/snomed-ct/v2/';
+      var apiEndpoint = '../snowstorm/snomed-ct/v2/';
 
       /////////////////////////////////////
       // Snowowl Concept Retrieval Methods
@@ -1397,7 +1397,7 @@ angular.module('singleConceptAuthoringApp')
           return null;
         }
        
-        return $http.get('snowowl/admin/codesystems/' + codeSystemShortName + '/versions').then(function (response) {
+        return $http.get('snowstorm/admin/codesystems/' + codeSystemShortName + '/versions').then(function (response) {
           return response;
         }, function (error) {
           return null;
@@ -1409,7 +1409,7 @@ angular.module('singleConceptAuthoringApp')
       // Branch Functions
       //////////////////////////////////////////////////////
 
-//    https://dev-term.ihtsdotools.org/snowowl/snomed-ct/v2/branches/MAIN/WRPAS/WRPAS-72/
+//    https://dev-term.ihtsdotools.org/snowstorm/snomed-ct/v2/branches/MAIN/WRPAS/WRPAS-72/
       function getBranch(branch) {
         return $http.get(apiEndpoint + 'branches/' + branch).then(function (response) {
           return response.data;

@@ -4,7 +4,7 @@ angular.module('singleConceptAuthoringApp')
   .service('metadataService', ['$http', '$rootScope', '$interval', function ($http, $rootScope, $interval) {
 
     // TODO Wire this to endpoint service, endpoint config
-    var apiEndpoint = '../snowowl/ihtsdo-sca/';
+    var apiEndpoint = '../snowstorm/ihtsdo-sca/';
 
     // project cache (still used?)
     var projects = [];
