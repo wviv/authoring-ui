@@ -6,6 +6,39 @@ angular.module('singleConceptAuthoringApp')
       var apiEndpoint = '../snowstorm/snomed-ct/v2/';
 
       /////////////////////////////////////
+      // Methods to normalise the Snowstorm response formats
+      /////////////////////////////////////
+      // normaliseSnowstormConcepts(response.data);
+      function normaliseSnowstormConcepts(items) {
+        angular.forEach(items, function(concept) {
+          normaliseSnowstormConcept(concept);
+        });
+      }
+
+      function normaliseSnowstormConcept(concept) {
+        normaliseSnowstormTerms(concept);
+        if (typeof concept.relationships == "object") {
+          angular.forEach(concept.relationships, function(relationship) {
+            normaliseSnowstormTerms(relationship.type);
+            normaliseSnowstormTerms(relationship.target);
+          });
+        }
+      }
+
+      function normaliseSnowstormTerms(component) {
+        if (typeof component.fsn == "object") {
+          // Flatten Snowstorm FSN data structure
+          component.fsn = component.fsn.term;
+        }
+        if (typeof component.pt == "object") {
+          // Flatten Snowstorm PT data structure
+          component.pt = component.pt.term;
+          component.preferredSynonym = component.pt;
+        }
+      }
+
+
+      /////////////////////////////////////
       // Snowowl Concept Retrieval Methods
       /////////////////////////////////////
 
@@ -86,8 +119,10 @@ angular.module('singleConceptAuthoringApp')
       function bulkValidateConcepts(branch, conceptArray) {
         var deferred = $q.defer();
         $http.post(apiEndpoint + 'browser/' + branch + '/validate/concepts', conceptArray).then(function (response) {
+          normaliseSnowstormConcepts(response.data);
           deferred.resolve(response);
         }, function (error) {
+          normaliseSnowstormConcepts(response.data);
           deferred.reject(error);
         });
         return deferred.promise;
@@ -281,6 +316,7 @@ angular.module('singleConceptAuthoringApp')
           limit = 200;
         }
         $http.get(apiEndpoint + branch + '/concepts/' + conceptId + '?expand=descendants(form:"inferred",direct:false,offset:0,limit:200,expand(fsn()))').then(function (response) {
+          // TODO is this used anywhere? It's not implemented in Snowstorm.
           deferred.resolve(response.data.descendants);
         }).then(function (error) {
           deferred.reject(error);
@@ -293,6 +329,7 @@ angular.module('singleConceptAuthoringApp')
       //////////////////////////////////////////////
 
       function startClassificationForTask(taskKey, branch) {
+        // TODO This is probably dead code - we don't used SnoRocket any more.
         var JSON = '{"reasonerId": "au.csiro.snorocket.owlapi3.snorocket.factory"}';
         return $http.post(apiEndpoint + branch + '/tasks/' + taskKey + '/classifications', JSON, {
           headers: {'Content-Type': 'application/json; charset=UTF-8'}
@@ -436,34 +473,6 @@ angular.module('singleConceptAuthoringApp')
 
       }
 
-      function normaliseSnowstormConcepts(items) {
-        angular.forEach(items, function(concept) {
-          normaliseSnowstormConcept(concept);
-        });
-      }
-
-      function normaliseSnowstormConcept(concept) {
-        normaliseSnowstormTerms(concept);
-        if (typeof concept.relationships == "object") {
-          angular.forEach(concept.relationships, function(relationship) {
-            normaliseSnowstormTerms(relationship.type);
-            normaliseSnowstormTerms(relationship.target);
-          });
-        }
-      }
-
-      function normaliseSnowstormTerms(component) {
-        if (typeof component.fsn == "object") {
-          // Flatten Snowstorm FSN data structure
-          component.fsn = component.fsn.term;
-        }
-        if (typeof component.pt == "object") {
-          // Flatten Snowstorm PT data structure
-          component.pt = component.pt.term;
-          component.preferredSynonym = component.pt;
-        }
-      }
-
       // Retrieve parents of a concept
       // GET /{path}/concepts/{conceptId}/parents
       function getConceptParents(conceptId, branch, acceptLanguageValue, synonymFlag, statedFlag) {
@@ -551,6 +560,7 @@ angular.module('singleConceptAuthoringApp')
       function getStatedConceptChildren(conceptId, branch) {
         // TODO Need to apply MS/extension parameters here eventually?
         return $http.get(apiEndpoint + 'browser/' + branch + '/concepts/' + conceptId + '/children?form=stated').then(function (response) {
+          normaliseSnowstormConcepts(response.data);
           return response.data;
         }, function (error) {
           // TODO Handle error
@@ -666,7 +676,7 @@ angular.module('singleConceptAuthoringApp')
 
       function updateDescription(description, branch) {
         return $http.get(apiEndpoint + branch + '/descriptions/' + description.descriptionId + '/updates').then(function (response) {
-
+          // TODO: is this dead code? This is not implemented in Snowstorm
           // if zero-count, return empty array (no blank array returned)
           if (response.data.total === 0) {
             return [];
