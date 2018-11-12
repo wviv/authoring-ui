@@ -1087,6 +1087,10 @@ angular.module('singleConceptAuthoringApp')
           } else {
             params.eclFilter = escgExpr;
           }          
+        
+          if (params.activeFilter) {
+            params.descriptionActiveFilter = params.activeFilter;
+          }
         }
 
         // if the user is searching for text
