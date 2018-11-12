@@ -481,7 +481,7 @@ angular.module('singleConceptAuthoringApp')
               }
               var temp = concepts.slice(1);
                 if(!response.validation.hasErrors && !response.validation.hasWarnings){
-                    $rootScope.$broadcast('batchEditing.conceptSaved');
+                    //$rootScope.$broadcast('batchEditing.conceptSaved');
                     tableConcept.tableAction = 'Saved...';
                     $timeout(function () {
                         scope.removeConcept(concept);
@@ -489,10 +489,10 @@ angular.module('singleConceptAuthoringApp')
                       }, 2500);
                 }
                 else if(response.validation.hasErrors){
-                    $rootScope.$broadcast('batchEditing.conceptSavedWithErrors');
+                    //$rootScope.$broadcast('batchEditing.conceptSavedWithErrors');
                 }
                 else {
-                    $rootScope.$broadcast('batchEditing.conceptSavedWithWarnings');
+                    //$rootScope.$broadcast('batchEditing.conceptSavedWithWarnings');
                 }
               saveAllHelper(temp);
 
@@ -502,7 +502,7 @@ angular.module('singleConceptAuthoringApp')
               } else {
                 concept.tableAction = null;
               }
-              $rootScope.$broadcast('batchEditing.conceptSavedWithErrors');
+              //$rootScope.$broadcast('batchEditing.conceptSavedWithErrors');
               saveAllHelper(concepts.slice(1));
             });
           }

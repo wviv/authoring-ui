@@ -16,22 +16,22 @@ angular.module('singleConceptAuthoringApp')
 
     $rootScope.$on('batchEditing.conceptSaved', function () {
             $scope.saved++;
-            $scope.complete = ($scope.errors + $scope.warning + $scope.saved) === $scope.total;
+            $scope.complete = ($scope.errors + $scope.warning + $scope.saved) >= $scope.total;
           });
     $rootScope.$on('batchEditing.conceptSavedWithWarnings', function () {
             $scope.warning++;
-            $scope.complete = ($scope.errors + $scope.warning + $scope.saved) === $scope.total;
+            $scope.complete = ($scope.errors + $scope.warning + $scope.saved) >= $scope.total;
           });
     $rootScope.$on('batchEditing.conceptSavedWithErrors', function () {
             $scope.errors++;
-            $scope.complete = ($scope.errors + $scope.warning + $scope.saved) === $scope.total;
+            $scope.complete = ($scope.errors + $scope.warning + $scope.saved) >= $scope.total;
           });
     $rootScope.$on('batchEditing.batchSaveComplete', function () {
-            $scope.complete = ($scope.errors + $scope.warning + $scope.saved) === $scope.total;
+            $scope.complete = ($scope.errors + $scope.warning + $scope.saved) >= $scope.total;
           });
     $rootScope.$on('batchEditing.batchSaveConceptsComplete', function (event, data) {
             $scope.saved += data.numberSavedConcepts;
-            $scope.complete = ($scope.errors + $scope.warning + $scope.saved) === $scope.total;
+            $scope.complete = ($scope.errors + $scope.warning + $scope.saved) >= $scope.total;
           }); 
 
     $scope.cancel = function () {
