@@ -860,7 +860,7 @@ angular.module('singleConceptAuthoringApp.searchPanel', [])
             if (queue.length > 0 || !conceptLoaded) {
               if(!processingConceptId) {
                 processingConceptId = queue.shift();
-                $rootScope.$broadcast('editConcept', {conceptId: processingConceptId, activeFilter: ($scope.isEscgMode ? $scope.userOptions.searchType : null)});
+                $rootScope.$broadcast('editConcept', {conceptId: processingConceptId});
               }
 
               conceptLoaded = false;
@@ -873,7 +873,7 @@ angular.module('singleConceptAuthoringApp.searchPanel', [])
               if (conceptLoaded) {
                 if (queue.length > 0) {
                   processingConceptId = queue.shift();
-                  $rootScope.$broadcast('editConcept', {conceptId: processingConceptId, activeFilter: ($scope.isEscgMode ? $scope.userOptions.searchType : null)});
+                  $rootScope.$broadcast('editConcept', {conceptId: processingConceptId});
                   conceptLoaded = false;
                 }
 

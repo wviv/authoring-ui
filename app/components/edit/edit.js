@@ -678,17 +678,6 @@ angular.module('singleConceptAuthoringApp.edit', [
               return;
             }
 
-             // strip inactive descriptions if specified
-            if (getConceptActiveFilter(conceptId) === 1) {
-              response.descriptions
-              var i = response.descriptions.length
-              while (i--) {                  
-                if (response.descriptions[i].active === false) { 
-                  response.descriptions.splice(i, 1);
-                }
-              }
-            }
-            
             $scope.concepts.push(response);
             $scope.$broadcast('editingConcepts', {concepts :  $scope.concepts});
 
@@ -905,7 +894,6 @@ angular.module('singleConceptAuthoringApp.edit', [
 //
 
     $scope.conceptLoading = false;
-    $scope.conceptActiveFilter = {};
 
 // watch for concept selection from the edit sidebar
     $scope.$on('editConcept', function (event, data) {
@@ -934,12 +922,6 @@ angular.module('singleConceptAuthoringApp.edit', [
         || $scope.thisView === 'inactivation')) {
         $scope.setView('edit-default');                 
       } 
-      if (data.activeFilter) {
-        $scope.conceptActiveFilter[data.conceptId] = data.activeFilter;
-      } else {
-        $scope.conceptActiveFilter[data.conceptId] = null;
-      }
-
       processUiStateUpdate(data.conceptId);
       
     });
@@ -970,14 +952,6 @@ angular.module('singleConceptAuthoringApp.edit', [
           setTimeout(waitForConceptRender, 500);
         }
       }, 500);      
-    }
-
-    function getConceptActiveFilter(conceptId) {
-      if ($scope.conceptActiveFilter.hasOwnProperty(conceptId)) {
-        return $scope.conceptActiveFilter[conceptId];
-      }
-
-      return null;
     }
 
 // watch for concept cloning from the edit sidebar
