@@ -25,6 +25,13 @@ angular.module('singleConceptAuthoringApp')
         }
       }
 
+      function normaliseSnowstormRelationships(items) {
+        angular.forEach(items, function(relationship) {
+            normaliseSnowstormTerms(relationship.type);
+            normaliseSnowstormTerms(relationship.target);
+        });
+      }
+
       function normaliseSnowstormTerms(component) {
         if (typeof component.fsn == "object") {
           // Flatten Snowstorm FSN data structure
@@ -733,8 +740,8 @@ angular.module('singleConceptAuthoringApp')
           if (response.data.total === 0) {
             deferred.resolve({total: 0, inboundRelationships: []});
           } else {
-
             // otherwise, return the passed array
+            normaliseSnowstormRelationships(response.data);
             deferred.resolve(response.data);
           }
         }, function (error) {
@@ -756,8 +763,8 @@ angular.module('singleConceptAuthoringApp')
           if (response.data.total === 0) {
             deferred.resolve([]);
           } else {
-
             // otherwise, return the passed array
+            normaliseSnowstormRelationships(response.data.outboundRelationships);
             deferred.resolve(response.data.outboundRelationships);
           }
         }, function (error) {
