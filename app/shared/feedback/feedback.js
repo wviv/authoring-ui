@@ -261,6 +261,10 @@ angular.module('singleConceptAuthoringApp')
                   params.total(myData.length);
                   // extract the paged results
                   scope.conceptsToReviewViewed = (myData.slice((params.page() - 1) * params.count(), params.page() * params.count()));
+                  if (scope.conceptsToReviewViewed.length === 0 && myData.length !== 0) {
+                    scope.conceptsToReviewTableParams.page(params.page() - 1);
+                    scope.conceptsToReviewViewed = (myData.slice((params.page() - 1) * params.count(), params.page() * params.count()));
+                  }
                   $defer.resolve(scope.conceptsToReviewViewed);
                 }
               }
@@ -309,6 +313,10 @@ angular.module('singleConceptAuthoringApp')
                   params.total(myData.length);
                   // extract the paged results
                   scope.conceptsClassified = (myData.slice((params.page() - 1) * params.count(), params.page() * params.count()));
+                  if (scope.conceptsClassified.length === 0 && myData.length !== 0) {
+                    scope.conceptsClassifiedTableParams.page(params.page() - 1);
+                    scope.conceptsClassified = (myData.slice((params.page() - 1) * params.count(), params.page() * params.count()));
+                  }
                   $defer.resolve(scope.conceptsClassified);
                 }
               }
@@ -355,6 +363,10 @@ angular.module('singleConceptAuthoringApp')
 
                   // extract the paged results -- SEE NOTE AT START
                   scope.conceptsReviewedViewed = (myData.slice((params.page() - 1) * params.count(), params.page() * params.count()));
+                  if (scope.conceptsReviewedViewed.length === 0 && myData.length !== 0) {
+                    scope.conceptsReviewedTableParams.page(params.page() - 1);
+                    scope.conceptsReviewedViewed = (myData.slice((params.page() - 1) * params.count(), params.page() * params.count()));
+                  }
                   $defer.resolve(scope.conceptsReviewedViewed);
                 }
               }
@@ -742,7 +754,7 @@ angular.module('singleConceptAuthoringApp')
             });
 
             // mark as unviewed in Reviewed list (if present)
-            angular.forEach(scope.conceptsReviewedViewed, function (item) {
+            angular.forEach(scope.feedbackContainer.review.conceptsReviewed, function (item) {
               if (item.conceptId === data.concept.conceptId) {
                 item.viewed = false;
               }
@@ -1042,6 +1054,9 @@ angular.module('singleConceptAuthoringApp')
               if(scope.booleanObj.checkedToReview) {
                 scope.booleanObj.checkedToReview = false;
               }
+              angular.forEach(itemList, function (item) {
+                scope.$broadcast('stopEditing', {'concept': item});
+              });
             } else if (actionTab === 2) {
               angular.forEach(scope.conceptsReviewedViewed, function (item) {
                 if (item.selected === true) {
