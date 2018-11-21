@@ -44,7 +44,6 @@
         <div class="switch pull-right p-l-10"> </div>
         <div ng-show="role === 'AUTHOR' && task.status === 'In Review'" > 
           <div class="editable-field">
-
             <div ng-if="task.reviewers && task.reviewers.length !== 0" class="inline">
               <div ng-repeat="reviewer in task.reviewers track by reviewer.displayName" class="in-block">                  
                   <div class="badge Available">
@@ -74,7 +73,7 @@
                 typeahead-loading="typeaheadLoading"
                 typeahead-focus-custom
                 ng-keyup="listenReviewerTypeaheadEvent({event: $event})"> 
-                <i ng-show="typeaheadLoading" class="md md-cached"></i>                   
+                <i ng-show="typeaheadLoading" class="md md-cached"></i>
               </input>
             </div>
 

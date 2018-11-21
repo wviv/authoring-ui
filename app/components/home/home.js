@@ -73,11 +73,20 @@ angular.module('singleConceptAuthoringApp.home', [
                     $rootScope.taskFilter.searchStr = params.filter().search;
                     $rootScope.taskFilter.sorting = params.sorting();                 
 
+                    // Store display number to local storage, then can be re-used later
+                    if (!localStorageService.get('table-display-number')
+                        || params.count() !== localStorageService.get('table-display-number')) {
+                        localStorageService.set('table-display-number', params.count());
+                    }
+
+                    $rootScope.taskFilter.searchStr = params.filter().search;
+                    $rootScope.taskFilter.sorting = params.sorting();
+
                     if (!$scope.tasks || $scope.tasks.length === 0) {
                         $defer.resolve([]);
                     } else {
-
-                        var searchStr = params.filter().search;                        
+                      
+                        var searchStr = params.filter().search;
 
                         var mydata = [];
 
@@ -101,21 +110,21 @@ angular.module('singleConceptAuthoringApp.home', [
                         }
 
                         params.total(mydata.length);
-                        
+                      
                         mydata = params.sorting() ? $filter('orderBy')(mydata, params.orderBy()) : mydata;
 
-                        if(params.sorting().feedbackMessageDate === 'asc'){                           
+                        if(params.sorting().feedbackMessageDate === 'asc'){
                             mydata.sort(function (a, b) {
                                 return sortFeedbackFn(a,b,'asc');
-                            });                        
+                            });
                         } else if(params.sorting().feedbackMessageDate === 'desc') {
                             mydata.sort(function (a, b) {
                                return sortFeedbackFn(a,b,'desc');                    
-                            });                         
+                            });
                         } else {
                             // do nothing
                         }
-
+                        
                         if(params.sorting().status === 'asc'){                           
                             mydata.sort(function (a, b) {
                                 return sortStatusFn(a,b,'asc');
@@ -123,7 +132,7 @@ angular.module('singleConceptAuthoringApp.home', [
                         } else if(params.sorting().status === 'desc') {
                             mydata.sort(function (a, b) {
                                return sortStatusFn(a,b,'desc');                    
-                            });                         
+                            });
                         } else {
                             // do nothing
                         }
@@ -138,17 +147,17 @@ angular.module('singleConceptAuthoringApp.home', [
         function sortFeedbackFn (a, b, direction) {
             if (a.feedbackMessageDate && b.feedbackMessageDate &&
                 a.feedbackMessagesStatus === 'unread' && b.feedbackMessagesStatus === 'unread') {
-                var dateA = new Date(a.feedbackMessageDate); 
+                var dateA = new Date(a.feedbackMessageDate);
                 var dateB = new Date(b.feedbackMessageDate);
                 if (direction === 'asc') {
-                    return dateA - dateB;  
+                    return dateA - dateB;
                 } else {
-                    return dateB - dateA;  
-                }                
+                    return dateB - dateA;
+                }
             } else if (a.feedbackMessageDate && a.feedbackMessagesStatus === 'unread') {
                 return -1;
-            } else if (b.feedbackMessageDate && b.feedbackMessagesStatus === 'unread') {                                
-                return 1;                            
+            } else if (b.feedbackMessageDate && b.feedbackMessagesStatus === 'unread') {
+                return 1;
             } else if (a.feedbackMessagesStatus === 'read') {
                 return -1;
             } else if (b.feedbackMessagesStatus === 'read') {
@@ -165,13 +174,13 @@ angular.module('singleConceptAuthoringApp.home', [
                 var result = a.tempStatus.localeCompare(b.tempStatus); 
                 delete a.tempStatus;
                 delete b.tempStatus; 
-                return result;  
+                return result;
             } else {
                 var result = b.tempStatus.localeCompare(a.tempStatus);
                 delete a.tempStatus;
                 delete b.tempStatus;
                 return result;  
-            } 
+            }
         }
 
         $scope.toggleShowPromotedTasks = function () {
@@ -200,7 +209,7 @@ angular.module('singleConceptAuthoringApp.home', [
                     for (let i =0 ; i < response.length; i++) {
                         if (response[i].status !== 'New') {
                             branches.push(response[i].branchPath);
-                        }                        
+                        }
                     }
                     if (branches.length > 0) {
                         findAndSetLastModifiedDate(branches, response).then(function(results) {
@@ -208,7 +217,7 @@ angular.module('singleConceptAuthoringApp.home', [
                             loadingTask = false;
                             if ($scope.tasks) {
                                 notificationService.sendMessage('All tasks loaded', 5000);
-                            }   
+                            }
                         });
                     } else {
                         $scope.tasks = response;
@@ -223,7 +232,7 @@ angular.module('singleConceptAuthoringApp.home', [
                     if ($scope.tasks) {
                         notificationService.sendMessage('All tasks loaded', 5000);
                     } 
-                }                
+                }
             });
         }
 
@@ -243,7 +252,7 @@ angular.module('singleConceptAuthoringApp.home', [
                                             $filter('date')(new Date(item.branchHeadTimestamp), 'yyyy-MM-ddTHH:mm:ss.sssZ', 'UTC') : item.updated;
                         }
                         if (map.hasOwnProperty(item.branchPath)) {
-                            item.updated = new Date(item.updated).getTime() < new Date(map[item.branchPath]).getTime() ? 
+                            item.updated = new Date(item.updated).getTime() < new Date(map[item.branchPath]).getTime() ?
                                             $filter('date')(new Date(map[item.branchPath]), 'yyyy-MM-ddTHH:mm:ss.sssZ', 'UTC') : item.updated;
                         }
                     }
@@ -255,14 +264,14 @@ angular.module('singleConceptAuthoringApp.home', [
                         if (item.branchHeadTimestamp) {
                             item.updated = new Date(item.updated).getTime() < item.branchHeadTimestamp ? 
                                             $filter('date')(new Date(item.branchHeadTimestamp), 'yyyy-MM-ddTHH:mm:ss.sssZ', 'UTC') : item.updated;
-                        }                       
+                        }
                     }
                     deferred.resolve(results);
                 }
             }, function (error) {
                 deferred.resolve(tasks);
             });
-            
+          
             return deferred.promise;
         }
 
@@ -285,19 +294,19 @@ angular.module('singleConceptAuthoringApp.home', [
             snowowlService.getBranch(projectBranch).then(function (response) {
                 if (!response.metadata || response.metadata && !response.metadata.lock) {
                     scaService.getUiStateForTask(task.projectKey, task.key, 'edit-panel')
-                        .then(function (uiState) {            
+                        .then(function (uiState) {
                             if (!uiState || Object.getOwnPropertyNames(uiState).length === 0) {
                               redirectToConflicts(task.branchPath,task.projectKey,task.key);
                             }
                             else {
-                              var promises = [];                    
-                              for (var i = 0; i < uiState.length; i++) {               
+                              var promises = [];
+                              for (var i = 0; i < uiState.length; i++) {
                                 promises.push(scaService.getModifiedConceptForTask(task.projectKey, task.key, uiState[i]));
                               }
                               // on resolution of all promises
                               $q.all(promises).then(function (responses) {
                                 var hasUnsavedConcept = responses.filter(function(concept){return concept !== null}).length > 0;
-                                if (hasUnsavedConcept) {                                 
+                                if (hasUnsavedConcept) {
                                   modalService.message('There are some unsaved concepts. Please go to task editing and save them before rebasing.');
                                 } else {
                                   redirectToConflicts(task.branchPath,task.projectKey,task.key);
@@ -305,7 +314,7 @@ angular.module('singleConceptAuthoringApp.home', [
                               });
                             }
                           }
-                        );                  
+                        );
                 }
                 else {
                     notificationService.sendWarning('Unable to open conflicts view for ' + task.key + ' as the project branch is locked due to ongoing changes.', 7000);
@@ -350,8 +359,8 @@ angular.module('singleConceptAuthoringApp.home', [
             });
 
             modalInstance.result.then(function (response) {
-                if (response) {                    
-                    addingTaskToList(response);                  
+                if (response) {
+                    addingTaskToList(response);
                 }
             }, function () {
             });
@@ -359,19 +368,19 @@ angular.module('singleConceptAuthoringApp.home', [
 
         function addingTaskToList (newTask) {
             if (loadingTask) {
-                var loadingTasksPoll = $interval(function () {                            
+                var loadingTasksPoll = $interval(function () {
                     if (!loadingTask) {
                         if ($scope.tasks.filter(function (task) {
                             return newTask.key === task.key;
                           }).length === 0) {
                             $scope.tasks.push(newTask);
-                        }                    
-                        $interval.cancel(loadingTasksPoll);                               
+                        }
+                        $interval.cancel(loadingTasksPoll);
                     }
                 }, 100);
             } else {
-                $scope.tasks.push(newTask);  
-            }            
+                $scope.tasks.push(newTask);
+            }
         }
 
         $scope.isProjectsLoaded = function() {
@@ -381,10 +390,10 @@ angular.module('singleConceptAuthoringApp.home', [
 
         $scope.$on('reloadTasks', function (event, data) {
             if (data.isCreateTask) {
-                addingTaskToList(data.concept);               
+                addingTaskToList(data.concept);
             } else {
-                loadTasks();  
-            }            
+                loadTasks();
+            }
         });
 
 // Initialization:  get tasks and classifications

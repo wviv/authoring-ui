@@ -33,6 +33,9 @@ angular.module('singleConceptAuthoringApp.project', [
       $scope.browserLink = '..';
       $rootScope.rebaseRunning = false;
 
+      // reset flag before checking in getting project detail
+      $rootScope.hasViewExclusionsPermission = false;
+
       hotkeys.bindTo($scope)
       .add({
         combo: 'alt+y',
@@ -64,14 +67,17 @@ angular.module('singleConceptAuthoringApp.project', [
             if (promotionTime) {
               let date = new Date(promotionTime);
               $scope.project.lastPromotion = date;
-            }            
+            }
           });
 
           // set the branch metadata for use by other elements
           metadataService.setBranchMetadata($scope.project);
 
           // set the extension metadata for use by other elements
-          metadataService.setExtensionMetadata($scope.project.metadata);          
+          metadataService.setExtensionMetadata($scope.project.metadata);
+
+          // This check would be used in validation report where to show/hide whitelist for project
+          metadataService.checkViewExclusionPermission($routeParams.projectKey);
 
           if ($scope.project.metadata && $scope.project.metadata.defaultModuleId) {
             snowowlService.getFullConcept($scope.project.metadata.defaultModuleId, $scope.project.branchPath, null).then(function(response) {
@@ -88,7 +94,7 @@ angular.module('singleConceptAuthoringApp.project', [
             scaService.getValidationForProject($scope.project.key).then(function (response) {
               $scope.validationContainer = response;
             });
-          }         
+          }
         });
       };
 
@@ -184,7 +190,7 @@ angular.module('singleConceptAuthoringApp.project', [
                 snowowlService.getBranch(metadataService.getBranchRoot()).then(function (response) {
                   if (!response.metadata || response.metadata && !response.metadata.lock) {
                     notificationService.sendMessage('Promoting project...');
-                    scaService.promoteProject($routeParams.projectKey).then(function (response) {                      
+                    scaService.promoteProject($routeParams.projectKey).then(function (response) {
                       if (response.status === 'CONFLICTS') {
                         var merge = JSON.parse(response.message);
                         snowowlService.searchMerge(merge.source, merge.target, 'CONFLICTS').then( function(response) {
@@ -244,7 +250,7 @@ angular.module('singleConceptAuthoringApp.project', [
                     snowowlService.getBranch(metadataService.getBranchRoot()).then(function (response) {
                       if (!response.metadata || response.metadata && !response.metadata.lock) {
                         notificationService.sendMessage('Promoting project...');
-                        scaService.promoteProject($routeParams.projectKey).then(function (response) {                          
+                        scaService.promoteProject($routeParams.projectKey).then(function (response) {
                           if (response.status === 'CONFLICTS') {
                             var merge = JSON.parse(response.message);
                             snowowlService.searchMerge(merge.source, merge.target, 'CONFLICTS').then( function(response) {
@@ -269,7 +275,7 @@ angular.module('singleConceptAuthoringApp.project', [
                             });
                           } else {
                             $scope.getProject();
-                          }                          
+                          }
                         });
                       }
                       else {
@@ -404,6 +410,24 @@ angular.module('singleConceptAuthoringApp.project', [
           $scope.taskTableParams.reload();
         });
 
+        // Get uiState for project
+        scaService.getUiStateForUser($routeParams.projectKey + '-merge-review-id').then(function (mergeReviewId) {
+          if (mergeReviewId) {
+            var viewedMergePoll = null;
+
+            viewedMergePoll = $interval(function () {
+              snowowlService.getMergeReview(mergeReviewId).then(function (response) {
+                if (response.status === 'PENDING' || response.status === 'CURRENT') {
+                  $rootScope.rebaseRunning = true;
+                } else {
+                  $rootScope.rebaseRunning = false;
+                  scaService.deleteUiStateForUser($routeParams.projectKey + '-merge-review-id');
+                  viewedMergePoll = $interval.cancel(viewedMergePoll);
+                }
+              });
+            }, 2000);
+          }
+        });
       }
 
       // on reload task broadcast, re-initialize

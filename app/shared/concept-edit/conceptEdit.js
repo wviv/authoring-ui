@@ -792,7 +792,7 @@ angular.module('singleConceptAuthoringApp').directive('conceptEdit', function ($
 
             // id required, used in drawModel.js
             $('#image-' + concept.conceptId).css('display', 'inline-block');
-            $('#project-taxonomy-' + concept.conceptId).css('display', 'inline-block');            
+            $('#project-taxonomy-' + concept.conceptId).css('display', 'inline-block');
             var zoomElm = $('#image-' + concept.conceptId).parent().parent().find('.zoom')[0];
             $(zoomElm).css('display', 'inline-block');
           }
@@ -1287,7 +1287,7 @@ angular.module('singleConceptAuthoringApp').directive('conceptEdit', function ($
                   subjectConceptIds.push(scope.concept.conceptId);
                   scaService.addFeedbackToTaskReview($routeParams.projectKey, $routeParams.taskKey, message, subjectConceptIds, false);                       
                   scaService.markTaskReviewInProgress($routeParams.projectKey, $routeParams.taskKey);
-                  reviewedListIds.splice(i,1);                                      
+                  reviewedListIds.splice(i,1);
                   break;
                 }
               }
@@ -4335,7 +4335,7 @@ angular.module('singleConceptAuthoringApp').directive('conceptEdit', function ($
         $timeout(function () {
            $rootScope.$broadcast('elastic:adjust');
         }, 0);
-
+        
 // sets the popover direction (left, bottom, right) based on current
 // position of root element
         scope.setPopoverDirection = function ($event) {

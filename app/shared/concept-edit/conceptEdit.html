@@ -72,7 +72,7 @@
             <i class="md fa fa-magic"></i><span>Attach Template</span>
           </div>
           
-
+        
           <div class="copy-to-clipboard" ng-if="isSctid(concept.conceptId) && concept.fsn">
             <button class="btn dropdown-toggle glyphicon glyphicon-export" type="button" data-toggle="dropdown" aria-expanded="true"></button>
             <ul class="dropdown-menu">
@@ -118,7 +118,7 @@
           <button ng-if="parentBranch" type="button" class="btn btn-default revert-button" ng-click="revertConcept()">
             Revert
           </button>
-
+          
           <button type="button"
                   class="btn-default green small-buttons green tooltips-bottom medium-size-tooltip md md-thumb-up"
                    ng-if="allowApproval"
@@ -144,7 +144,7 @@
             <span>Revert to version</span>
           </button>
           <button type="button"
-                  ng-click="toggleConceptActive(concept, true)" 
+                  ng-click="toggleConceptActive(concept, true)"
                   ng-if="!isStatic && !isInactivation && !isLockedModule(concept.moduleId) && !concept.released && isSctid(concept.conceptId)"
                   class="btn-default red tooltips-bottom status-concept tooltips-light normal-case editbuttons fa-sca fa-minus small-buttons">
             <span ng-if="!isStatic">Delete Unpublished Concept</span>
@@ -165,7 +165,7 @@
                   ng-click="toggleInferredRelationships()">{{!showInferredRels ? 'S' : 'I'}}
                   <span ng-if="!showInferredRels"> Switch to inferred view </span>
                   <span ng-if="showInferredRels"> Switch to stated view </span>
-          </button>          
+          </button>
           <button ng-if="concept.definitionStatus === 'FULLY_DEFINED'"
                   ng-disabled="isStatic || isLockedModule(concept.moduleId)"
                   class="p-l-3 white-text primitive-buttons tooltips-bottom small-size-tooltip tooltips-light"
@@ -211,13 +211,13 @@
                 <li ng-click="addGCIAxiom()" ng-if="axiomSupport && role === 'AUTHOR'" ng-disabled="showInferredRels">Add GCI Axiom</li>
                 <li ng-click="undo()" ng-disabled="conceptHistoryPtr < 1" ng-if="!isStatic">Undo Changes</li>
                 <li ng-click="redo()" ng-disabled="conceptHistoryPtr === conceptHistory.length - 1" ng-if="!isStatic">Redo Changes</li>
-                <li ng-click="downloadOWLAxiom()">View OWL Axiom</li>                           
+                <li ng-click="downloadOWLAxiom()">View OWL Axiom</li>
               </ul>
             </li>
           </ul>
 
         </div>
-      </div>    
+      </div>
       <div class="no-padding edits concept-title" ng-disabled="saving" ng-class="{'disabled': saving}">
         <button type="button"
                   class="btn-default fa-sca fa-keyboard-o tooltips-bottom editbuttons small-size-tooltip small-buttons shortcutIndicator"
@@ -599,7 +599,7 @@
                        drag="getConceptIdNamePairFromAttributeType(relationship)"
                        drag-channel="completeConcept"
                        drag-image="getDragImageForConcept(relationship.type.fsn)"
-                       ng-dblclick="openAttributeConcept(relationship)">                    
+                       ng-dblclick="openAttributeConcept(relationship)">
                   </div>
 
                 </div>

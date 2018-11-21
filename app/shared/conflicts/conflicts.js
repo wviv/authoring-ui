@@ -585,6 +585,7 @@ angular.module('singleConceptAuthoringApp')
                 scope.rebaseComplete = false;
                 scope.warning = true;
                 scope.fiveOFour = false;
+
                 notificationService.sendError('Error pulling changes from project: ' + error);
               });
             } else {

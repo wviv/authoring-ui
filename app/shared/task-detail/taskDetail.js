@@ -11,7 +11,7 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
       // the project and task branch objects
       $scope.projectBranch = null;
       $scope.taskBranch = null;
-      $scope.promoting = false;      
+      $scope.promoting = false;
       $scope.automatePromotionStatus = "";
       $scope.automatePromotionErrorMsg = "";
 
@@ -29,7 +29,7 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
           });
         } else {
           doClassify();
-        }     
+        }
       };
 
       function doClassify() {
@@ -71,7 +71,7 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
 
           // if response contains no flags, simply promote
           if (!warningsFound) {
-            notificationService.sendMessage('Promoting task...');           
+            notificationService.sendMessage('Promoting task...');
             promotionService.promoteTask($routeParams.projectKey, $routeParams.taskKey).then(function (response) {
               if (response.status === 'CONFLICTS') {
                 var merge = JSON.parse(response.message);
@@ -97,7 +97,7 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
                 });
               } else {
                 $rootScope.$broadcast('reloadTask');
-              }              
+              }
             }, function (error) {
               $scope.promoting = false;
               notificationService.sendError('Error promoting task to project: ' + error);
@@ -121,7 +121,7 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
 
             modalInstance.result.then(function (proceed) {
               if (proceed) {
-                notificationService.sendMessage('Promoting task...');              
+                notificationService.sendMessage('Promoting task...');
                 promotionService.promoteTask($routeParams.projectKey, $routeParams.taskKey).then(function (response) {
                   if (response.status === 'CONFLICTS') {
                     var merge = JSON.parse(response.message);
@@ -166,28 +166,28 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
           $scope.promoting = false;
         });
       };
-      $scope.proceedAutomatePromotion = function () {        
-        notificationService.sendMessage('Preparing for task promotion automation...');       
-        $scope.automatePromotionErrorMsg = '';        
+      $scope.proceedAutomatePromotion = function () {
+        notificationService.sendMessage('Preparing for task promotion automation...');
+        $scope.automatePromotionErrorMsg = '';
         $scope.automatePromotionStatus = '';
         $scope.isAutomatePromotionRunning = true;
-        
+
         /* Check unsaved concepts*/
         scaService.getUiStateForTask($routeParams.projectKey, $routeParams.taskKey, 'edit-panel')
-          .then(function (uiState) {            
+          .then(function (uiState) {
             if (!uiState || Object.getOwnPropertyNames(uiState).length === 0) {
               validateReviewStatus();
             }
             else {
-              var promises = [];                    
-              for (var i = 0; i < uiState.length; i++) {               
+              var promises = [];
+              for (var i = 0; i < uiState.length; i++) {
                 promises.push(scaService.getModifiedConceptForTask($routeParams.projectKey, $routeParams.taskKey, uiState[i]));
               }
               // on resolution of all promises
               $q.all(promises).then(function (responses) {
                 var hasUnsavedConcept = responses.filter(function(concept){return concept !== null}).length > 0;
                 if (hasUnsavedConcept) {
-                  notificationService.clear();                  
+                  notificationService.clear();
                   modalService.message('There are some unsaved concepts. Please save them before promoting task automation.');
                   $scope.isAutomatePromotionRunning = false;
                 } else {
@@ -196,13 +196,13 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
               });
             }
           }
-        );   
+        );
       };
 
       function validateReviewStatus() {
         var flags = [];
         /* Check review */
-        scaService.getTaskForProject($routeParams.projectKey, $routeParams.taskKey).then(function (branchStatus) {             
+        scaService.getTaskForProject($routeParams.projectKey, $routeParams.taskKey).then(function (branchStatus) {
           ////////////////////////////////////////////////////////////
           // CHECK:  Has the Task been reviewed?
           ////////////////////////////////////////////////////////////
@@ -250,10 +250,10 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
               }
             }, function () {
               notificationService.clear();
-              $scope.isAutomatePromotionRunning = false;          
+              $scope.isAutomatePromotionRunning = false;
             });
           }
-          
+
         });
       }
 
@@ -277,7 +277,7 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
           });
         } else {
           doValidate();
-        }        
+        }
       };
 
       function doValidate() {
@@ -370,14 +370,14 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
                   if (reviewedListIds && reviewedListIds.length > 0) {
                     modalService.confirm('There are ' + reviewedListIds.length + ' approved concepts in the review. Cancelling will reset all concepts to unapproved and will require all concepts to be (re-)approved in a new review. To keep the approved work, please ask the reviewer to unclaim the review. Are you sure you want to cancel this review?').then(function () {
                       reviewService.cancelReview($scope.task).then(function () {
-                        notificationService.sendMessage('Review Cancelled', 2000);                     
+                        notificationService.sendMessage('Review Cancelled', 2000);
                       });
                     }, function () {
                       // do nothing
                     });
                   } else {
                     reviewService.cancelReview($scope.task).then(function () {
-                      notificationService.sendMessage('Review Cancelled', 2000);                     
+                      notificationService.sendMessage('Review Cancelled', 2000);
                     });
                   }
                 });
@@ -440,7 +440,7 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
             $timeout(function () {
               $scope.checkForLock();
             }, 10000);
-           }         
+           }
           else {
             snowowlService.getClassificationsForTask($routeParams.projectKey, $routeParams.taskKey).then(function (response) {
               if (response && response.length > 0) {
@@ -452,7 +452,7 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
                   }, 10000);
                 } else {
                   $rootScope.branchLocked = false;
-                }                
+                }
               } else {
                 $rootScope.branchLocked = false;
               }
@@ -465,18 +465,18 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
       
       $scope.checkAutomatePromotionStatus = function (isInitialInvoke) {       
         $scope.automatePromotionErrorMsg = '';        
-        promotionService.getAutomatePromotionStatus($routeParams.projectKey, $routeParams.taskKey).then(function (response) {       
+        promotionService.getAutomatePromotionStatus($routeParams.projectKey, $routeParams.taskKey).then(function (response) {
           if (response && $scope.task.status !== 'Promoted') {
             $scope.automatePromotionStatus = response.status;
             switch ($scope.automatePromotionStatus) {
-              case 'Queued':                
+              case 'Queued':
                 $rootScope.automatedPromotionInQueued = true;
-                $rootScope.branchLocked = false;                           
+                $rootScope.branchLocked = false;
                 notificationService.clear();
                 break;
-              case 'Rebasing':                
-                $rootScope.branchLocked = true;              
-                $rootScope.automatedPromotionInQueued = false;                
+              case 'Rebasing':
+                $rootScope.branchLocked = true;
+                $rootScope.automatedPromotionInQueued = false;
                 notificationService.clear();
                 break;
               case 'Rebased with conflicts':
@@ -489,66 +489,66 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
                 $scope.automatePromotionErrorMsg = 'Merge conflicts detected during automated promotion. Please rebase task manually, resolve merge conflicts and then restart automation.';
                   }
                 });
-                break;              
+                break;
               case 'Classifying':
                 $rootScope.branchLocked = true;
-                $rootScope.automatedPromotionInQueued = false;                
+                $rootScope.automatedPromotionInQueued = false;
                 $rootScope.classificationRunning = true;
                 notificationService.clear();
                 break;
-              case 'Classified with results':                
+              case 'Classified with results':
                 if ($scope.task.latestClassificationJson.status === 'SAVED'
                     || $scope.task.latestClassificationJson.status === 'RUNNING'
                     || new Date($scope.task.latestClassificationJson.completionDate) > new Date(response.completeDate)) {
                    $scope.automatePromotionStatus = '';
                   break;
-                }               
+                }
                 $rootScope.classificationRunning = false;
                 $rootScope.branchLocked = false;
-                $rootScope.automatedPromotionInQueued = false;                
+                $rootScope.automatedPromotionInQueued = false;
                 if(!isInitialInvoke) {
                   $rootScope.$broadcast('reloadTask');
                 }
                 $timeout(function () {
-                  $scope.automatePromotionErrorMsg = 'Classification results detected during automated promotion. Please review and accept classification results, then restart automation.'; 
+                  $scope.automatePromotionErrorMsg = 'Classification results detected during automated promotion. Please review and accept classification results, then restart automation.';
                 }, 2000);
                 break;
               case 'Promoting':
                 $rootScope.classificationRunning = false;
                 $rootScope.branchLocked = true;
-                $rootScope.automatedPromotionInQueued = false;                       
+                $rootScope.automatedPromotionInQueued = false;
                 notificationService.clear();
                 break;
               case 'Completed':
-                $rootScope.classificationRunning = false;               
+                $rootScope.classificationRunning = false;
                 $rootScope.automatedPromotionInQueued = false;
                 $rootScope.branchLocked = true;
                 if (!isInitialInvoke) {  
                   $rootScope.$broadcast('reloadTask');                  
-                }             
+                }
                 break;
-              case 'Failed':               
+              case 'Failed':
                 $rootScope.automatedPromotionInQueued = false;
                 $rootScope.classificationRunning = false;
                 $rootScope.branchLocked = false;
-                if (!isInitialInvoke) {                  
+                if (!isInitialInvoke) {
                   $scope.automatePromotionErrorMsg =  'Error automate promotion: ' + response.message;
                   notificationService.clear();
                 }
-                break;              
-              default:                
+                break;
+              default:
                 $rootScope.automatedPromotionInQueued = false;
                 $rootScope.classificationRunning = false;
                 $rootScope.branchLocked = false;
             }
-            if ($scope.automatePromotionStatus === 'Queued' 
+            if ($scope.automatePromotionStatus === 'Queued'
                 || response.status === 'Rebasing'
                 || response.status === 'Classifying'
                 || response.status === 'Promoting') {
               $timeout(function () {
                 $scope.checkAutomatePromotionStatus(false);
               }, 10000);
-            }           
+            }
           } else {
             $scope.automatePromotionStatus = '';
           }
@@ -557,7 +557,7 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
           }
 
           // This local flag will no longer use after getting the state from back-end 
-          $scope.isAutomatePromotionRunning = false; 
+          $scope.isAutomatePromotionRunning = false;
         });
       };
 
@@ -575,7 +575,7 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
       $scope.viewClassification = function () {
         $rootScope.$broadcast('viewClassification');
       };
-      
+
       //
       // Issue Links
       //
@@ -609,7 +609,7 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
             $scope.checkAutomatePromotionStatus(true);
           } else {
             $rootScope.branchLocked = true;
-          }          
+          }
 
           snowowlService.getTraceabilityForBranch($scope.task.branchPath).then(function (traceability) {
           });

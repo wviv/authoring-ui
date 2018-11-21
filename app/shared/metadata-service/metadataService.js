@@ -14,6 +14,8 @@ angular.module('singleConceptAuthoringApp')
     var mrcmAttributeDomainMembers = [];
 
     var selfGroupedAttributes = [];
+      
+    var myProjects = [];
 
     // whether mrcm is currently enabled (default true)
     var mrcmEnabled = true;
@@ -160,8 +162,8 @@ angular.module('singleConceptAuthoringApp')
       {id: '736475003', display: 17},
       {id: '736473005', display: 18},
       {id: '736472000', display: 19},
-      {id: '766952006', display: 20}, 
-      {id: '766954007', display: 21}, 
+      {id: '766952006', display: 20},
+      {id: '766954007', display: 21},
       {id: '766953001', display: 22}
     ];
 
@@ -267,7 +269,7 @@ angular.module('singleConceptAuthoringApp')
                       defaultLanguages.push(Object.keys(lang)[0]);
                   }
                   if(lang.default !== null && lang.default !== undefined){
-                      //set dialect default for langauge refset value autogeneration 
+                      //set dialect default for langauge refset value autogeneration
                       dialectDefaults[lang[Object.keys(lang)[0]]] = lang.default;
                   }
                   if(lang.readOnly !== null && lang.readOnly !== undefined){
@@ -347,7 +349,7 @@ angular.module('singleConceptAuthoringApp')
         };
           console.log(extensionMetadata);
         }
-        
+
         if(getCurrentModuleId() !== '900000000000207008'){
           var found = false;
           for(var i = 0; i < descriptionInactivationReasons.length; i++) {
@@ -501,7 +503,7 @@ angular.module('singleConceptAuthoringApp')
         return internationalMetadata.dialects;
       }
     }
-    
+
     function getDialectDefaultsForModuleId(moduleId, FSN) {
       if (extensionMetadata && !FSN && extensionMetadata.dialectDefaults !== null) {
         return extensionMetadata.dialectDefaults;
@@ -589,6 +591,10 @@ angular.module('singleConceptAuthoringApp')
       return projects;
     }
 
+    function getMyProjects() {
+      return myProjects;
+    }
+
     function getProjectForKey(key) {
       for (var i = 0; i < projects ? projects.length : -1; i++) {
         if (projects[i].key === key) {
@@ -600,6 +606,10 @@ angular.module('singleConceptAuthoringApp')
 
     function setProjects(projectsList) {
       projects = projectsList;
+    }
+
+    function setMyProjects(myProjectList) {
+      myProjects = myProjectList;
     }
 
     function setMrcmEnabled(value) {
@@ -654,13 +664,46 @@ angular.module('singleConceptAuthoringApp')
     }
 
     function isSelfGroupAttribute(id) {
-      for (var i = 0; i < selfGroupedAttributes.length; i++) { 
+      for (var i = 0; i < selfGroupedAttributes.length; i++) {
           var attribute = selfGroupedAttributes[i];
-          if(attribute.referencedComponentId === id) {            
+          if(attribute.referencedComponentId === id) {
             return true;
           }
       }
       return false;
+    }
+      
+    function checkViewExclusionPermission(projectKey) {
+      if (extensionMetadata !== null) {
+        if (myProjects.length > 0) {
+          if (myProjects.indexOf(projectKey) === -1) {
+            $rootScope.hasViewExclusionsPermission = false;
+          } else {
+            $rootScope.hasViewExclusionsPermission = true;
+          }
+        } else {
+          var interval = null;
+          var count = 0;
+
+          // wait until my project list is set
+          interval = $interval(function () {            
+            if (myProjects.length > 0) {
+              if (myProjects.indexOf(projectKey) === -1) {
+                $rootScope.hasViewExclusionsPermission = false;
+              } else {
+                $rootScope.hasViewExclusionsPermission = true;
+              }
+              interval = $interval.cancel(interval);
+            } else if (count > 30) {
+              interval = $interval.cancel(interval);
+            } else {
+              count++;
+            }            
+          }, 2000);
+        }        
+      } else {
+        $rootScope.hasViewExclusionsPermission = true;
+      } 
     }
 
     return {
@@ -671,7 +714,9 @@ angular.module('singleConceptAuthoringApp')
 
       // project, my project cache getters/setters
       setProjects: setProjects,
-      getProjects: getProjects,     
+      getProjects: getProjects,
+      setMyProjects : setMyProjects,
+      getMyProjects : getMyProjects,
       getProjectForKey: getProjectForKey,
 
       // inactivation reason retrieval
@@ -689,7 +734,7 @@ angular.module('singleConceptAuthoringApp')
       isMrcmEnabled: isMrcmEnabled,
       isTemplatesEnabled: isTemplatesEnabled,
       isSpellcheckDisabled: isSpellcheckDisabled,
-
+      
 
       // extension module-dependent retrieval functions
 
@@ -733,6 +778,9 @@ angular.module('singleConceptAuthoringApp')
       getBranchMetadata: function () {
         return branchMetadata;
       },
+
+      // uitility to check view whitelist in validation report
+      checkViewExclusionPermission: checkViewExclusionPermission,
 
       setNamespaces: setNamespaces,
       getNamespaces: getNamespaces,

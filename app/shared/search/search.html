@@ -46,7 +46,7 @@
       <!--</button>-->
     <!--</div>-->
   </div>
-    
+
   <div class="row no-padding" ng-if="templateMode">
     <div class="col-xs-11 col-sm-11 col-md-11 col-lg-11 col-xl-11 no-padding">
       <input class="form-control m-5 search-box no-border-bottom-search" ng-model="userOptions.template" placeholder="Enter template name"
@@ -61,7 +61,7 @@
     <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1 col-xl-1 no-padding">
       <button ng-show="userOptions.template" class="btn btn-default md md-close light-button transparent" ng-click="clearSearch()"></button>
     </div>
-      
+
 <!--
     <div class="col-md-6">
       <div class="col-md-5 col-sm-4 filter-label">
@@ -87,7 +87,7 @@
       </div>
     </div>
 -->
-    
+
   </div>
 
 
@@ -135,13 +135,13 @@
   <div class="row search-filter" ng-if="isEscgMode || templateMode">
     <div class="view-selection" ng-class="[{'col-md-4' : !templateMode}, {'col-md-3' : templateMode}]">
       <div class="col-md-12 col-sm-8 filter-input">
-        <select ng-model="userOptions.statedSelection" ng-change="newSearch()" name="select-type" class="form-control no-padding m-t-10">          
+        <select ng-model="userOptions.statedSelection" ng-change="newSearch()" name="select-type" class="form-control no-padding m-t-10">
           <option value="inferred">Inferred</option>
           <option value="stated">Stated</option>
         </select>
       </div>
     </div>
-    <div class="definition-status z-index-1" ng-class="[{'col-md-5 pull-right' : !templateMode}, {'col-md-4' : templateMode}]">     
+    <div class="definition-status z-index-1" ng-class="[{'col-md-5 pull-right' : !templateMode}, {'col-md-4' : templateMode}]">
       <div class="col-md-2 filter-label">
         <label class="pull-right m-t-10">Def.</label>
       </div>
@@ -156,7 +156,7 @@
       <div class="col-md-5 transform-selection" ng-if="templateMode">
         <div>
           <div class="col-md-12 col-sm-8 filter-input">
-            <select ng-model="userOptions.model" ng-change="newSearch()" name="select-type" class="form-control no-padding m-t-10">          
+            <select ng-model="userOptions.model" ng-change="newSearch()" name="select-type" class="form-control no-padding m-t-10">
               <option value="logical">Logical</option>
               <option value="lexical">Logical and Lexical</option>
               <option value="logical!lexical">Logical not Lexical</option>
@@ -176,7 +176,7 @@
       <h5 class="dark-centured-text total-text"><span>{{searchTotal}}</span> concepts found</h5>
     </div>
   </div>
-    
+  
   <div class="row no-padding m-l-10" ng-if="results.length > 0">
       <div class="col-md-4 no-padding" ng-if="!userOptions.groupByConcept">
         <div class="p-5">

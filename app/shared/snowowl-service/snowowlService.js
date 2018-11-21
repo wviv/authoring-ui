@@ -159,7 +159,7 @@ angular.module('singleConceptAuthoringApp')
 
           if (key === 'relationships') {
             angular.forEach(axiom[key], function (relationship) {
-              cleanRelationship(relationship);              
+              cleanRelationship(relationship);
             });
           }
         }
@@ -934,7 +934,7 @@ angular.module('singleConceptAuthoringApp')
           active: data.active,
           concept: {
             active: data.active,
-            conceptId: data.id ? data.id : data.fsn.conceptId,
+            conceptId: data.fsn ? data.fsn.conceptId : data.pt.conceptId,
             definitionStatus: data.definitionStatus,
             fsn: data.fsn ? data.fsn.term : data.fsn,
             preferredSynonym: data.pt ? data.pt.term : data.pt,
@@ -1003,7 +1003,7 @@ angular.module('singleConceptAuthoringApp')
                   });
                 } else {
                   deferred.resolve(response);
-                }                
+                }
               }, function (error) {
                 deferred.reject(error);
               });
@@ -1011,7 +1011,7 @@ angular.module('singleConceptAuthoringApp')
             else {
               params.termFilter = termFilter;
               params.conceptIds = conceptIdList;
-            }            
+            }
           }
 
           // if user is searching with a descriptionID
@@ -1074,14 +1074,14 @@ angular.module('singleConceptAuthoringApp')
           // if the id is unrecognised
           else {
             console.error('unrecognised ID');
-            params.termFilter = termFilter;            
+            params.termFilter = termFilter;
           }
         }
 
         // if the user is doing an ecl search
         else if(escgExpr){
           params.termFilter = termFilter;
-          
+
           if (view === 'stated') {
             params.statedEclFilter = escgExpr;
           } else {
@@ -1095,7 +1095,7 @@ angular.module('singleConceptAuthoringApp')
 
         // if the user is searching for text
         else {
-          params.termFilter = termFilter;                    
+          params.termFilter = termFilter;
         }
 
         if (!isAsychronousRequest) {
@@ -1379,7 +1379,7 @@ angular.module('singleConceptAuthoringApp')
 
       // Get last promotion for branch
       // GET /traceability-service/activities/promotions?page=0&size=1&sort=commitDate,desc&sourceBranch=
-      function getLastPromotionTime(branchRoot) {        
+      function getLastPromotionTime(branchRoot) {
         if(!branchRoot) {
           console.error('Error retrieving last promotion time: Branh root is missing');
           return null;
@@ -1393,7 +1393,7 @@ angular.module('singleConceptAuthoringApp')
       }
  
       // Get last active for branchs
-      function getLastActivityOnBranches(branches) {        
+      function getLastActivityOnBranches(branches) {
         if(!branches) {
           console.error('Error retrieving last activity for branches. No such branch is provided');
           return null;
@@ -1403,7 +1403,7 @@ angular.module('singleConceptAuthoringApp')
           return response.data;
         }, function (error) {
           return null;
-        });        
+        });
       }
 
       ////////////////////////////////
@@ -1414,7 +1414,7 @@ angular.module('singleConceptAuthoringApp')
           console.error('Error retrieving versions: code system is not defined');
           return null;
         }
-       
+        
         return $http.get('snowowl/admin/codesystems/' + codeSystemShortName + '/versions').then(function (response) {
           return response;
         }, function (error) {
@@ -1823,10 +1823,10 @@ angular.module('singleConceptAuthoringApp')
       function setEndpoint(url){
           apiEndpoint = url;
       }
-
+      
       function searchMerge (source, target, status) {       
         return $http.get(apiEndpoint + 'merges?' + 'source=' + encodeURIComponent(source) + '&target=' + encodeURIComponent(target) + '&status=' + status).then(function (response) {
-          var mergeReview = response.data;         
+          var mergeReview = response.data;
           return mergeReview;
         }, function (error) {
           return null;

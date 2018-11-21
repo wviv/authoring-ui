@@ -25,7 +25,7 @@ angular.module('singleConceptAuthoringApp.taxonomyPanel', [])
       // watch for viewTaxonomy events
       $scope.$on('viewTaxonomy', function(event, data) {
         $scope.rootConcept = data.concept;
-        $scope.secondRootConcept = null;         
+        $scope.secondRootConcept = null;
       });
 
       // watch for viewTaxonomy reder

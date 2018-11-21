@@ -23,7 +23,7 @@ angular.module('singleConceptAuthoringApp.transformModal', [])
         return 1;
       }
       return 0;
-    });    
+    });
     $scope.inactivationReason ={
         'id': 'NONCONFORMANCE_TO_EDITORIAL_POLICY'
     };
@@ -82,7 +82,7 @@ angular.module('singleConceptAuthoringApp.transformModal', [])
           $modalInstance.close(response);
       }, function (error) {
           $scope.loading = false;          
-          $scope.errorMsg = error;          
+          $scope.errorMsg = error;
       });
     };
 

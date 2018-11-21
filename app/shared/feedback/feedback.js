@@ -10,7 +10,7 @@ angular.module('singleConceptAuthoringApp')
                 ctrl.$setViewValue(ctrl.$viewValue);
               }
               else {
-                ctrl.$setViewValue(' '); 
+                ctrl.$setViewValue(' ');
               }
             });
             element.bind('focus', function () {
@@ -18,7 +18,7 @@ angular.module('singleConceptAuthoringApp')
                 ctrl.$setViewValue(ctrl.$viewValue);
               }
               else {
-                ctrl.$setViewValue(' '); 
+                ctrl.$setViewValue(' ');
               }
             });
             element.bind('keyup', function (event) {
@@ -28,7 +28,7 @@ angular.module('singleConceptAuthoringApp')
                 ctrl.$setViewValue(ctrl.$viewValue);
               }
               else {
-                ctrl.$setViewValue(' '); 
+                ctrl.$setViewValue(' ');
               }
             });
         }
@@ -77,7 +77,7 @@ angular.module('singleConceptAuthoringApp')
           var users = [];
           
           function getUsers(start, end) {            
-            var expand =  'users[' + start + ':' + end + ']';         
+            var expand =  'users[' + start + ':' + end + ']';
             scaService.getUsers(expand).then(function (response) {
               if (response.users.items.length > 0) {
                 angular.forEach(response.users.items, function (item) {
@@ -88,7 +88,7 @@ angular.module('singleConceptAuthoringApp')
                     user.email = item.emailAddress;
                     user.username = item.key;
                     users.push(user);
-                  }   
+                  }
                 });
               }
 
@@ -106,24 +106,28 @@ angular.module('singleConceptAuthoringApp')
           };
 
           scope.viewTaxonomy = function() {            
-            $rootScope.$broadcast('swapToTaxonomy');                
+            $rootScope.$broadcast('swapToTaxonomy');
           };
 
-          scope.viewSearch = function () {            
+          scope.viewTaxonomy = function() {
+            $rootScope.$broadcast('swapToTaxonomy');
+          };
+
+          scope.viewSearch = function () {
             $rootScope.$broadcast('swapToSearch');
           };
 
-          scope.viewSavedList = function () {           
+          scope.viewSavedList = function () {
             $rootScope.$broadcast('swapToSavedList');
           };
 
-          scope.viewBatch = function () {            
+          scope.viewBatch = function () {
             $rootScope.$broadcast('swapToBatch');
           };
 
-          scope.viewTaskDetails = function () {           
+          scope.viewTaskDetails = function () {
             $rootScope.$broadcast('swapToTaskDetails');
-          };                    
+          };
 
           // the editor scope variables
           scope.htmlVariable = '';
@@ -151,7 +155,7 @@ angular.module('singleConceptAuthoringApp')
                 scope.approveAllConcepts();
               }
             });*/
-
+          
           
           // get the user information to determine role
           // values: AUTHOR, REVIEWER
@@ -166,7 +170,7 @@ angular.module('singleConceptAuthoringApp')
               }, function() {
                 scope.role = 'UNKNOWN';
                 notificationService.sendError('Could not determine role for task ' + $routeParams.taskKey);
-              });           
+              });
             }
           });
 
@@ -392,7 +396,7 @@ angular.module('singleConceptAuthoringApp')
             scaService.getUiStateForReviewTask($routeParams.projectKey, $routeParams.taskKey, 'reviewed-list').then(function (response) {
               var list = response;
               if(list && list.length > 0) {
-                  modalService.confirm('There are ' + scope.feedbackContainer.review.conceptsReviewed.length + ' approved concepts in the review. Cancelling will reset all concepts to unapproved and will require all concepts to be (re-)approved in a new review. To keep the approved work, please ask the reviewer to unclaim the review. Are you sure you want to cancel this review?').then(function () {                    
+                  modalService.confirm('There are ' + scope.feedbackContainer.review.conceptsReviewed.length + ' approved concepts in the review. Cancelling will reset all concepts to unapproved and will require all concepts to be (re-)approved in a new review. To keep the approved work, please ask the reviewer to unclaim the review. Are you sure you want to cancel this review?').then(function () {
                     var taskObj = {
                         'status': 'IN_PROGRESS',
                         'reviewers': []
@@ -533,7 +537,7 @@ angular.module('singleConceptAuthoringApp')
             if (scope.role === 'REVIEWER') {
               for (var i = 0; i < scope.feedbackContainer.review.conceptsToReview.length; i++) {
                 var reviewConcept = scope.feedbackContainer.review.conceptsToReview[i];
-                if (concept.conceptId === reviewConcept.conceptId) { 
+                if (concept.conceptId === reviewConcept.conceptId) {
                   return true;
                 }
               }
@@ -596,7 +600,7 @@ angular.module('singleConceptAuthoringApp')
             notificationService.sendMessage('Loading concept ' + data.fsn);
             addToEditHelper(data.conceptId).then(function (response) {              
               notificationService.sendMessage('Concept loaded', 5000);
-            });                           
+            });
           });
 
           function closeAllConcepts () {
@@ -616,7 +620,7 @@ angular.module('singleConceptAuthoringApp')
             });
           }
 
-          function approveAndLoadNext (concept) { 
+          function approveAndLoadNext (concept) {
             var elementPos = 0;
             for (var i = 0; i < scope.conceptsToReviewViewed.length; i++) {
               if (scope.conceptsToReviewViewed[i].conceptId === concept.conceptId) {
@@ -626,7 +630,7 @@ angular.module('singleConceptAuthoringApp')
 
             for (var i = 0; i < scope.feedbackContainer.review.conceptsToReview.length; i++) {
               var reviewConcept = scope.feedbackContainer.review.conceptsToReview[i];
-              if (concept.conceptId === reviewConcept.conceptId) {               
+              if (concept.conceptId === reviewConcept.conceptId) {
 
                 // moove to reviewed list
                 reviewConcept.viewed = false
@@ -638,7 +642,7 @@ angular.module('singleConceptAuthoringApp')
                     scope.viewedConcepts.splice(i, 1);
                     break;
                   }
-                }                            
+                }
 
                 updateReviewedListUiState();
                 break;
@@ -647,7 +651,7 @@ angular.module('singleConceptAuthoringApp')
 
             // load next concept
             if (scope.viewedConcepts.length === 0) {
-              loadNextConcept(elementPos);              
+              loadNextConcept(elementPos);
             } else {
               var found = false;
               angular.forEach(scope.viewedConcepts, function (viewConcept) {
@@ -660,7 +664,7 @@ angular.module('singleConceptAuthoringApp')
               if(!found) {
                 loadNextConcept(elementPos);
               }
-            }            
+            }
           };
 
           function loadNextConcept(elementPos) {
@@ -668,7 +672,7 @@ angular.module('singleConceptAuthoringApp')
               var nextConcept = scope.conceptsToReviewViewed[elementPos];
               if (!scope.isDeletedConcept(nextConcept)) {
                 scope.selectConcept(nextConcept);
-              }                             
+              }
             }
           }
 
@@ -714,7 +718,7 @@ angular.module('singleConceptAuthoringApp')
           scope.isDeletedConcept = function(concept) {
             for (var i = 0; i < concept.componentChanges.length; i++) {
               var change = concept.componentChanges[i];
-              if (change.componentType === 'CONCEPT' 
+              if (change.componentType === 'CONCEPT'
                 && change.changeType === 'DELETE'
                 && !concept.term) {
                 return true;
@@ -862,7 +866,7 @@ angular.module('singleConceptAuthoringApp')
               scope.viewedConcepts.push(response);
 
               // Sort concepts
-              if(sorting) {                
+              if(sorting) {
                 scope.viewedConcepts = $filter('orderBy')(scope.viewedConcepts, sorting === 'asc' ? '+fsn' : '-fsn');
               }
 
@@ -877,7 +881,7 @@ angular.module('singleConceptAuthoringApp')
                     }
                   });
               }, 1000);
-             
+              
 
               deferred.resolve(response);
 
@@ -958,17 +962,17 @@ angular.module('singleConceptAuthoringApp')
           scope.addMultipleToEdit = function (actionTab) {
             var conceptsToAdd = [];
             var conceptsAdded = 0;
-            scope.simultaneousFeedbackAdded = false;            
+            scope.simultaneousFeedbackAdded = false;
             if (actionTab === 1) {
               angular.forEach(scope.conceptsToReviewViewed, function (item) {
                 if (item.selected === true && !item.viewed) {
-                  conceptsToAdd.push(item);                  
+                  conceptsToAdd.push(item);
                 }
               });
             } else if (actionTab === 2) {
               angular.forEach(scope.conceptsReviewedViewed, function (item) {
                 if (item.selected === true && !item.viewed) {
-                  conceptsToAdd.push(item.conceptId);                  
+                  conceptsToAdd.push(item.conceptId);
                 }
               });
             }
@@ -979,8 +983,8 @@ angular.module('singleConceptAuthoringApp')
 
             if(conceptsToAdd.length > scope.limitConceptsLoading) {
               var msg = '';
-              msg = 'Your selection exceeds the number of concepts that can be loaded. Please change your selection to a maximum of ' + scope.limitConceptsLoading + ' concepts';      
-              
+              msg = 'Your selection exceeds the number of concepts that can be loaded. Please change your selection to a maximum of ' + scope.limitConceptsLoading + ' concepts';
+
               notificationService.sendWarning(msg, 10000);
               return;
             }
@@ -1500,11 +1504,11 @@ angular.module('singleConceptAuthoringApp')
                 if (actions.indexOf('addToEdit') >= 0) scope.addToEdit(concept);
                 if (actions.indexOf('viewConceptInTaxonomy') >= 0) scope.viewConceptInTaxonomy(concept);
               } else {
-                scope.selectConceptForFeedback(concept); 
-                scope.addToEdit(concept); 
+                scope.selectConceptForFeedback(concept);
+                scope.addToEdit(concept);
                 scope.viewConceptInTaxonomy(concept);
               }              
-            }            
+            }
           };
 
           scope.selectNextConcept = function() {
@@ -1527,7 +1531,12 @@ angular.module('singleConceptAuthoringApp')
             });
           };
 
-          scope.selectConceptForFeedback = function (concept, deletedConceptChecking) {            
+                breakout = true;
+              }
+            });
+          };
+
+          scope.selectConceptForFeedback = function (concept, deletedConceptChecking) {
             concept.read = true;
             //console.debug('selecting concept for feedback', concept.conceptId, concept.read);
             scope.subjectConcepts = [concept];
@@ -1537,7 +1546,7 @@ angular.module('singleConceptAuthoringApp')
           scope.selectConceptsForFeedback = function () {
             scope.subjectConcepts = [];
             angular.forEach(scope.conceptsToReviewViewed, function (item) {
-              if (item.selected) {             
+              if (item.selected) {
                 scope.subjectConcepts.push(item);
               }
             });
@@ -1552,7 +1561,7 @@ angular.module('singleConceptAuthoringApp')
             } else {
               scope.simultaneousFeedbackAdded = true;
               getViewedFeedback();
-            }            
+            }
           };
 
           scope.toggleFeedbackUnreadStatus = function (concept) {
@@ -1697,7 +1706,7 @@ angular.module('singleConceptAuthoringApp')
                   }
                 });
               });
-              deferred.resolve();              
+              deferred.resolve();
             });
 
             return deferred.promise;
@@ -1710,10 +1719,10 @@ angular.module('singleConceptAuthoringApp')
 
             // escape
             if (event.keyCode === 27) {
-              scope.editReviewer = false; 
+              scope.editReviewer = false;
             }
           };
-
+          
           scope.addReviewer = function (reviewer) {
             let found = false;
             if (scope.task.reviewers) {
@@ -1758,12 +1767,12 @@ angular.module('singleConceptAuthoringApp')
           };
 
           scope.switchToAddReviewer = function () {            
-            scope.editReviewer = true;            
+            scope.editReviewer = true;
             $timeout(function () {
               document.getElementById("feedback-edit-reviewer").focus();
-            }, 0);                        
+            }, 0);
           };
-
+          
           scope.convertReviewersToText = function (reviewers, property) {       
             if (reviewers) {
               var list = reviewers.map(a => a[property]);
@@ -1783,7 +1792,7 @@ angular.module('singleConceptAuthoringApp')
             }            
             return users.filter(item => -1 === reviewers.indexOf(item.username));
           };
-
+          
           var projectTaxonomyList = [];
           scope.isProjectTaxonomyVisisble = function (concept) {
             for (var i =0; i < projectTaxonomyList.length; i++) {
@@ -1821,7 +1830,7 @@ angular.module('singleConceptAuthoringApp')
             angular.forEach(spanTags, function(tag) {
               angular.element(tag).css('top', top - 152);
               angular.element(tag).css('left', left - 45);
-            });                
+            });
           };
 
           scope.submitFeedback = function (requestFollowup) {
@@ -1952,7 +1961,7 @@ angular.module('singleConceptAuthoringApp')
                     // on resolution of all promises
                     $q.all(promises).then(function () {
                       scope.feedbackContainer.review = review ? review : {};
-                    }, function (error) {             
+                    }, function (error) {
                     });
                   });
                   notificationService.sendMessage('Feedback Submitted', 5000, null);
