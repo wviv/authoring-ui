@@ -1529,12 +1529,7 @@ angular.module('singleConceptAuthoringApp')
                 breakout = true;
               }
             });
-          };
-
-                breakout = true;
-              }
-            });
-          };
+          };           
 
           scope.selectConceptForFeedback = function (concept, deletedConceptChecking) {
             concept.read = true;
