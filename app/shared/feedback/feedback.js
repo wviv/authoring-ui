@@ -1767,19 +1767,28 @@ angular.module('singleConceptAuthoringApp')
               document.getElementById("feedback-edit-reviewer").focus();
             }, 0);
           };
-          
-          scope.convertReviewersToText = function (reviewers, property) {       
-            if (reviewers) {
-              var list = reviewers.map(a => a[property]);
-              return list.join(', ');
+
+          scope.sortReviewers = function (reviewers) {
+            var tempReviewer = null;
+            var i = reviewers.length;
+            while (i--) {               
+              if (reviewers[i].username === $rootScope.accountDetails.login) { 
+                tempReviewer = reviewers[i];
+                reviewers.splice(i, 1);
+              }
             }
-            return '';
+            reviewers.unshift(tempReviewer);
+            return reviewers;
           };
-          scope.getAvailableUsers = function() {
+
+          scope.getAvailableUsers = function(exceptList) {
             if (users.length === 0) {
               return [];
             }
             var reviewers = [];
+            if (exceptList) {
+              reviewers = exceptList;
+            }
             if (scope.task.reviewers) {
               scope.task.reviewers.forEach(function (reviewer) {
                 reviewers.push(reviewer.username);
