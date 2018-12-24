@@ -203,6 +203,9 @@ angular
         // get the account details
         accountService.getAccount(accountUrl).then(function (account) {
 
+          // start connecting websocket
+          scaService.connectWebsocket(account.login);
+
           // get the user preferences (once logged in status confirmed)
           accountService.getUserPreferences().then(function (preferences) {
 
@@ -224,10 +227,6 @@ angular
           })
         });
           
-        // begin polling the sca endpoint at 10s intervals
-          
-        scaService.startPolling(10000);
-
         ///////////////////////////////////////////
         // Cache local data
         ///////////////////////////////////////////
