@@ -21,15 +21,36 @@
                     });
                 }
             };
+            
+            var networkSpeedArr = [];
 
+            // Store connection speed every 2 minutes, this will stop if the array reaches to 10 items
+            function storeNetworkSpeed() {
+              if (networkSpeedArr.length < 10) {
+                networkSpeedArr.push(navigator.connection.downlink);
+                setTimeout(storeNetworkSpeed,120000);
+              } 
+            }
+
+            setTimeout(storeNetworkSpeed,1000);
+
+            // Monitor connection each 15 second based on the average speed
+            // if current connection is slower 50% than average speed, then the warning message will be displayed
             function monitorNetworkConnection() {
-              var minConnectionSpeed =  window.minConnectionSpeed ? window.minConnectionSpeed : 2;
-              var downlink = navigator.connection.downlink;
-              if (downlink && downlink < minConnectionSpeed) {
-                $("#networkWarning").css("display", "inline");
-              } else {
-                $("#networkWarning").css("display", "none");
-              }
+              if (networkSpeedArr.length === 10) {
+                var sum = 0;
+                for( var i = 0; i < networkSpeedArr.length; i++ ){
+                    sum += parseFloat( networkSpeedArr[i]);
+                }
+               
+                var averageSpeed = sum/networkSpeedArr.length;
+                var downlink = navigator.connection.downlink;
+                if (downlink && downlink < averageSpeed / 2) {
+                  $("#networkWarning").css("display", "inline");
+                } else {
+                  $("#networkWarning").css("display", "none");
+                }
+              }              
               setTimeout(monitorNetworkConnection,15000);
             }
 
