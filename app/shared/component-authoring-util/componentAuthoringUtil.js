@@ -83,9 +83,13 @@ angular.module('singleConceptAuthoringApp')
         // if extension, override language to international (pass null module id)
         if (metadataService.isExtensionSet()) {
           desc.lang = metadataService.getDefaultLanguageForModuleId(null);
+          desc.acceptabilityMap = {};
+          desc.acceptabilityMap['900000000000509007']  = 'PREFERRED';
+        } else {
+          desc.acceptabilityMap = getNewAcceptabilityMap(moduleId, 'PREFERRED', initial, desc.lang);
         }
 
-        desc.acceptabilityMap = getNewAcceptabilityMap(moduleId, 'PREFERRED', initial, desc.lang);
+        
 
 
         return desc;
@@ -968,6 +972,31 @@ function getFsnDescriptionForConcept(concept) {
         return errors;
       };
 
+      // method to check single Axiom for validity
+      function checkAxiomComplete(axiom, type) {
+
+        var errors = [];
+
+        var hasIsARelationship = false;
+        angular.forEach(axiom.relationships, function (relationship) {
+          if (!relationship.type || !relationship.type.conceptId) {
+            errors.push('Relationship typeId must be set');
+          }
+          if (!relationship.target || !relationship.target.conceptId) {
+            errors.push('Relationship targetId must be set');
+          }
+          if (relationship.type && relationship.type.conceptId && relationship.type.conceptId === '116680003') {
+            hasIsARelationship = true;
+          }
+        });
+        
+        if (!hasIsARelationship) {
+          errors.push((type === 'gci'? 'General Concept Inclusion' : 'Additional Axiom') + ' must have at least one IS A relationship');
+        }
+
+        return errors;
+      };
+
       function checkConceptComplete(concept) {
         var errors = [];
 
@@ -1010,6 +1039,20 @@ function getFsnDescriptionForConcept(concept) {
         for (var j = 0; j < concept.relationships.length; j++) {
           errors = errors.concat(checkRelationshipComplete(concept.relationships[j]));
         }
+
+        // check Additional Axiom
+        if (concept.additionalAxioms) {
+           for (var l = 0; l < concept.additionalAxioms.length; l++) {
+            errors = errors.concat(checkAxiomComplete(concept.additionalAxioms[l], 'additional'));
+          }
+        }       
+
+        // check GCI
+        if (concept.gciAxioms) {
+          for (var m = 0; m < concept.gciAxioms.length; m++) {
+            errors = errors.concat(checkAxiomComplete(concept.gciAxioms[m], 'gci'));
+          }
+        }        
 
         // strip any duplicate messages
         for (var i = 0; i < errors.length; i++) {

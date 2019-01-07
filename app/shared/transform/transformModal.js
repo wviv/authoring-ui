@@ -1,11 +1,15 @@
 angular.module('singleConceptAuthoringApp.transformModal', [])
 
-  .controller('transformModalCtrl', function ($scope, $modalInstance, branch, results, templateFrom, templateService, metadataService) {
+  .controller('transformModalCtrl', function ($scope, $modalInstance, branch, results, templateFrom, templateService, metadataService, notificationService) {
 
     $scope.branch = branch;
     $scope.results = results;
     $scope.templateFrom = templateFrom;
     $scope.templateTo = '';
+    $scope.errorMsg = '';
+    $scope.transformType = 'logical&lexical';
+    $scope.logical = true;
+    $scope.lexical = true;
     let reasons = metadataService.getDescriptionInactivationReasons();
     $scope.reasons = [];
     angular.forEach(reasons, function(reason){
@@ -54,11 +58,31 @@ angular.module('singleConceptAuthoringApp.transformModal', [])
       $scope.inactivationReason = inactivationReason;
     };
 
+    $scope.selectTemplate = function() {
+      $scope.errorMsg = '';
+    };
+
     $scope.transform = function() {
+      if($scope.transformType === 'logical&lexical'){
+          $scope.logical = true;
+          $scope.lexical = true;
+      }
+      else if($scope.transformType === 'logical'){
+          $scope.logical = true;
+          $scope.lexical = false;
+      }
+      else{
+          $scope.lexical = true;
+          $scope.logical = false;
+      }
       $scope.loading = true;
-      templateService.transform($scope.branch, $scope.templateFrom, $scope.templateTo, $scope.inactivationReason.id, $scope.results).then(function(response){
+      $scope.errorMsg = '';
+      templateService.transform($scope.branch, $scope.templateFrom, $scope.templateTo, $scope.inactivationReason.id, $scope.results, $scope.logical, $scope.lexical).then(function(response){
           $scope.loading = false;
           $modalInstance.close(response);
+      }, function (error) {
+          $scope.loading = false;
+          $scope.errorMsg = error;
       });
     };
 

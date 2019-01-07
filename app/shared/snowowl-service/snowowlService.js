@@ -216,7 +216,14 @@ angular.module('singleConceptAuthoringApp')
           if (allowableAxiomRelationshipProperties.indexOf(key) === -1) {
             delete axiom[key];
           }
+
+          if (key === 'relationships') {
+            angular.forEach(axiom[key], function (relationship) {
+              cleanRelationship(relationship);
+            });
+          }
         }
+
       }
 
       function removeInvalidCharacters(term) {
@@ -316,13 +323,17 @@ angular.module('singleConceptAuthoringApp')
 
         });
 
-        angular.forEach(concept.additionalAxioms, function (axiom) {
-          cleanAxiom(axiom);
-        });
+        if (concept.additionalAxioms) {
+          angular.forEach(concept.additionalAxioms, function (axiom) {
+            cleanAxiom(axiom);
+          });
+        }
 
-        angular.forEach(concept.gciAxioms, function (axiom) {
-          cleanAxiom(axiom);
-        });
+        if (concept.gciAxioms) {
+          angular.forEach(concept.gciAxioms, function (axiom) {
+            cleanAxiom(axiom);
+          });
+        }
       }
 
       // function to remove disallowed elements from a concept
@@ -806,6 +817,21 @@ angular.module('singleConceptAuthoringApp')
         return deferred.promise;
       }
 
+      // GET /{path}/concepts/{conceptId}/members
+      function getMembersByReferencedComponent(conceptId, branch) {
+        var deferred = $q.defer();
+        $http.get(apiEndpoint + branch + '/members?referencedComponentId=' + conceptId + '&limit=1000&active=true&expand=referencedComponent(expand(fsn()))').then(function (response) {
+          if (response.data.total === 0) {
+            deferred.resolve([]);
+          } else {
+            deferred.resolve(response.data);
+          }
+        }, function (error) {
+          deferred.reject(error);
+        });
+        return deferred.promise;
+      }
+
       function getMrcmAttributeDomainMembers(branch) {
         var deferred = $q.defer();
         $http.get(apiEndpoint + branch + '/members?referenceSet=723561005&offset=0&limit=500&active=true&expand=referencedComponent(expand(fsn()))').then(function (response) {
@@ -911,13 +937,13 @@ angular.module('singleConceptAuthoringApp')
         var queryString = '';
         angular.forEach(conceptIdList, function (concept, key) {
           if (key + 1 !== conceptIdList.length) {
-            queryString += concept + '%20UNION%20';
+            queryString += concept + '%20OR%20';
           }
           else {
             queryString += concept;
           }
         });
-        $http.get(apiEndpoint + branch + '/concepts?offset=0&limit=200&expand=fsn()' + (expandPt ? ',pt()' : '') + '&escg=' + queryString).then(function (response) {
+        $http.get(apiEndpoint + branch + '/concepts?offset=0&limit=200&expand=fsn()' + (expandPt ? ',pt()' : '') + '&ecl=' + queryString).then(function (response) {
           deferred.resolve(response.data);
         }, function (error) {
           deferred.reject(error);
@@ -1023,74 +1049,61 @@ angular.module('singleConceptAuthoringApp')
           params.definitionStatusFilter = definitionStatus;
         }
 
+        let isAsychronousRequest = false;
         // if the user is searching with some form of numerical ID
         if(!isNaN(parseFloat(termFilter)) && isFinite(termFilter) || Array.isArray(conceptIdList)) {
 
           // if user is searching with a conceptID
           if(conceptIdList || termFilter.substr(-2, 1) === '0') {
             if(!Array.isArray(conceptIdList)) {
+              isAsychronousRequest = true;
               params.conceptIds = [termFilter];
+              doSearch(branch, params, config, tsv).then(function (response) {
+                // If no concept found, then search by normal text
+                if (response.total === 0) {
+                  delete params.conceptIds;
+                  params.termFilter = termFilter;
+                  doSearch(branch, params, config, tsv).then(function (response) {
+                    deferred.resolve(response);
+                  }, function (error) {
+                    deferred.reject(error);
+                  });
+                } else {
+                  deferred.resolve(response);
+                }
+              }, function (error) {
+                deferred.reject(error);
+              });
             }
-
             else {
               params.termFilter = termFilter;
               params.conceptIds = conceptIdList;
             }
-
-
-            $http.post(apiEndpoint + branch + '/concepts/search', params, config).then(function(response) {
-
-              if(tsv) {
-                deferred.resolve(response);
-              }
-
-              else {
-                let results = [];
-
-                angular.forEach(response.data.items, function(item) {
-                  let obj = browserStructureConversion(item);
-
-                  results.push(obj);
-                });
-
-                response.data.items = results;
-                deferred.resolve(response.data ? response.data : {items: [], total: 0});
-              }
-
-            }, function(error) {
-              deferred.reject(error);
-            });
           }
 
           // if user is searching with a descriptionID
           else if(termFilter.substr(-2, 1) === '1') {
+            isAsychronousRequest = true;
             $http.get(apiEndpoint + branch + '/descriptions/' + termFilter).then(function(response) {
 
               params.conceptIds = [response.data.conceptId];
 
-              $http.post(apiEndpoint + branch + '/concepts/search', params, config).then(function(response) {
-
-                if(tsv) {
+              doSearch(branch, params, config, tsv).then(function (response) {
+                // If no concept found, then search by normal text
+                if (response.total === 0) {
+                  delete params.conceptIds;
+                  params.termFilter = termFilter;
+                  doSearch(branch, params, config, tsv).then(function (response) {
+                    deferred.resolve(response);
+                  }, function (error) {
+                    deferred.reject(error);
+                  });
+                } else {
                   deferred.resolve(response);
                 }
-
-                else {
-                  let results = [];
-
-                  angular.forEach(response.data.items, function(item) {
-                    let obj = browserStructureConversion(item);
-
-                    results.push(obj);
-                  });
-
-                  response.data.items = results;
-                  deferred.resolve(response.data ? response.data : {items: [], total: 0});
-                }
-
-              }, function(error) {
+              }, function (error) {
                 deferred.reject(error);
               });
-
             }, function(error) {
               deferred.reject(error);
             });
@@ -1098,30 +1111,25 @@ angular.module('singleConceptAuthoringApp')
 
           // if user is searching with a relationshipID
           else if(termFilter.substr(-2, 1) === '2') {
+            isAsychronousRequest = true;
             $http.get(apiEndpoint + branch + '/relationships/' + termFilter, { params : params }).then(function(response) {
 
               params.conceptIds = [response.data.sourceId, response.data.destinationId];
 
-              $http.post(apiEndpoint + branch + '/concepts/search', params, config).then(function(response) {
-
-                if(tsv) {
+              doSearch(branch, params, config, tsv).then(function (response) {
+                // If no concept found, then search by normal text
+                if (response.total === 0) {
+                  delete params.conceptIds;
+                  params.termFilter = termFilter;
+                  doSearch(branch, params, config, tsv).then(function (response) {
+                    deferred.resolve(response);
+                  }, function (error) {
+                    deferred.reject(error);
+                  });
+                } else {
                   deferred.resolve(response);
                 }
-
-                else {
-                  let results = [];
-
-                  angular.forEach(response.data.items, function(item) {
-                    let obj = browserStructureConversion(item);
-
-                    results.push(obj);
-                  });
-
-                  response.data.items = results;
-                  deferred.resolve(response.data ? response.data : {items: [], total: 0});
-                }
-
-              }, function(error) {
+              }, function (error) {
                 deferred.reject(error);
               });
 
@@ -1133,6 +1141,7 @@ angular.module('singleConceptAuthoringApp')
           // if the id is unrecognised
           else {
             console.error('unrecognised ID');
+            params.termFilter = termFilter;
           }
         }
 
@@ -1145,36 +1154,28 @@ angular.module('singleConceptAuthoringApp')
           } else {
             params.eclFilter = escgExpr;
           }
-
-          $http.post(apiEndpoint + branch + '/concepts/search', params, config).then(function (response) {
-
-            if(tsv) {
-              deferred.resolve(response);
-            }
-
-            else {
-              let results = [];
-
-              angular.forEach(response.data.items, function(item) {
-                let obj = browserStructureConversion(item);
-
-                results.push(obj);
-              });
-
-              response.data.items = results;
-              deferred.resolve(response.data ? response.data : {items: [], total: 0});
-            }
-
-          }, function (error) {
-            deferred.reject(error);
-          });
         }
 
         // if the user is searching for text
         else {
           params.termFilter = termFilter;
+        }
 
-          $http.post(apiEndpoint + branch + '/concepts/search', params, config).then(function (response) {
+        if (!isAsychronousRequest) {
+          doSearch(branch, params, config, tsv).then(function (response) {
+            deferred.resolve(response);
+          }, function (error) {
+            deferred.reject(error);
+          });
+        }
+
+        return deferred.promise;
+      }
+
+      function doSearch (branch, params, config, tsv) {
+        let deferred = $q.defer();
+
+        $http.post(apiEndpoint + branch + '/concepts/search', params, config).then(function (response) {
 
             if(tsv) {
               deferred.resolve(response);
@@ -1196,7 +1197,6 @@ angular.module('singleConceptAuthoringApp')
           }, function (error) {
             deferred.reject(error);
           });
-        }
 
         return deferred.promise;
       }
@@ -1417,7 +1417,7 @@ angular.module('singleConceptAuthoringApp')
 
       // Get traceability log for branch
       // GET /traceability-service/activities?onBranch=
-      function getTraceabilityForBranch(branch, conceptId) {
+      function getTraceabilityForBranch(branch, conceptId, activityType) {
         var deferred = $q.defer();
         var params = 'size=50000';
         if(branch) {
@@ -1425,6 +1425,9 @@ angular.module('singleConceptAuthoringApp')
         }
         if(conceptId) {
           params += '&conceptId=' + conceptId;
+        }
+        if(activityType) {
+          params += '&activityType=' + activityType;
         }
 
         $http.get('/traceability-service/activities?' + params).then(function (response) {
@@ -1454,7 +1457,21 @@ angular.module('singleConceptAuthoringApp')
           return null;
         });
       }
- 
+
+      // Get last active for branchs
+      function getLastActivityOnBranches(branches) {
+        if(!branches) {
+          console.error('Error retrieving last activity for branches. No such branch is provided');
+          return null;
+        }
+
+        return $http.post('/traceability-service/activities/branches/last', branches).then(function (response) {
+          return response.data;
+        }, function (error) {
+          return null;
+        });
+      }
+
       ////////////////////////////////
       // Snow Owl Administrative Services
       ////////////////////////////////
@@ -1463,7 +1480,6 @@ angular.module('singleConceptAuthoringApp')
           console.error('Error retrieving versions: code system is not defined');
           return null;
         }
-       
         return $http.get('snowstorm/admin/codesystems/' + codeSystemShortName + '/versions').then(function (response) {
           return response;
         }, function (error) {
@@ -1869,7 +1885,7 @@ angular.module('singleConceptAuthoringApp')
       }
 
       function searchMerge (source, target, status) {
-        return $http.get(apiEndpoint + 'searchMerge?' + 'source=' + source + '&target=' + target + '&status=' + status).then(function (response) {
+        return $http.get(apiEndpoint + 'merges?' + 'source=' + encodeURIComponent(source) + '&target=' + encodeURIComponent(target) + '&status=' + status).then(function (response) {
           var mergeReview = response.data;
           return mergeReview;
         }, function (error) {
@@ -1928,6 +1944,7 @@ angular.module('singleConceptAuthoringApp')
         searchAllConcepts: searchAllConcepts,
         getReview: getReview,
         getMembersByTargetComponent: getMembersByTargetComponent,
+        getMembersByReferencedComponent:getMembersByReferencedComponent,
 
         // attribute retrieval
         getDomainAttributes: getDomainAttributes,
@@ -1940,6 +1957,7 @@ angular.module('singleConceptAuthoringApp')
         getBranch: getBranch,
         createBranch: createBranch,
         getTraceabilityForBranch: getTraceabilityForBranch,
+        getLastActivityOnBranches: getLastActivityOnBranches,
         isBranchPromotable: isBranchPromotable,
         setBranchPreventPromotion: setBranchPreventPromotion,
         getLastPromotionTime: getLastPromotionTime,
@@ -1966,7 +1984,9 @@ angular.module('singleConceptAuthoringApp')
         isRelationshipId: isRelationshipId,
         cleanConcept: cleanConcept,
         cleanDescription: cleanDescription,
-        cleanRelationship: cleanRelationship
+        cleanRelationship: cleanRelationship,
+        // setEndpoint: setEndpoint,
+        searchMerge: searchMerge
       };
     }
 

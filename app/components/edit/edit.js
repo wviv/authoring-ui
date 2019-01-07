@@ -55,9 +55,9 @@ angular.module('singleConceptAuthoringApp.edit', [
           scope.first = false;
           scope.initializeWindowSize();
         });
-        scope.$on('repeatComplete', function (event, data) {
+        scope.$on('resetFillHeight', function (event, data) {
           scope.initializeWindowSize();
-        });
+        });        
       }
     };
   })
@@ -216,7 +216,7 @@ angular.module('singleConceptAuthoringApp.edit', [
     };
     $scope.renderingComplete = function () {
 
-      $rootScope.$broadcast('repeatComplete');
+      $rootScope.$broadcast('resetFillHeight');
       $scope.conceptsRendering = false;
     };
     $scope.goToConflicts = function () {
@@ -1066,11 +1066,20 @@ angular.module('singleConceptAuthoringApp.edit', [
             relationship.$$hashKey = 'object:' + Math.floor(Math.random()*10000);
           }
 
-          if (relationship.active === false || relationship.characteristicType === 'INFERRED_RELATIONSHIP') {
+          if (relationship.active === false || relationship.characteristicType !== 'STATED_RELATIONSHIP') {
             clonedConcept.relationships.splice(j, 1);
           }
         }
-
+        if (clonedConcept.additionalAxioms && clonedConcept.additionalAxioms.length > 0) {
+          for (let index = 0; index < clonedConcept.additionalAxioms.length; index++) {
+            clonedConcept.additionalAxioms[index].axiomId = null;
+          }
+        }
+        if (clonedConcept.gciAxioms && clonedConcept.gciAxioms.length > 0) {
+          for (let index = 0; index < clonedConcept.gciAxioms.length; index++) {
+            clonedConcept.gciAxioms[index].axiomId = null;
+          }
+        }
         clonedConcept.conceptId = null;
         if (isExtension
             || (clonedConcept.moduleId !== internationalMetadata.modules[1].id  && clonedConcept.moduleId !==internationalMetadata.modules[2].id)) {
@@ -1158,6 +1167,12 @@ angular.module('singleConceptAuthoringApp.edit', [
           }
         }
       }
+
+      // Re-calculate the min-height for the last item
+      // so that it will fit all remaining height of screen
+      $timeout(function () {
+        $rootScope.$broadcast('resetFillHeight');
+      }, 0);      
     });
 
 // creates a blank (unsaved) concept in the editing list

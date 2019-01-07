@@ -77,7 +77,22 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
                 var merge = JSON.parse(response.message);
                 snowowlService.searchMerge(merge.source, merge.target, 'CONFLICTS').then( function(response) {
                   if (response && response.items && response.items.length > 0) {
-                    // show conflicts
+                    var msg = '';
+                    var conflictCount = 0;
+                    angular.forEach(response.items, function (item) {
+                      if (item.id == merge.id) {
+                        angular.forEach(item.conflicts, function (conflict) {
+                          if (msg.length > 0) {
+                            msg = msg + ' \n';
+                          }
+                          msg += conflict.message;
+                          conflictCount++;
+                        });
+                      }                        
+                    });
+                    if (msg.length > 0) {
+                      notificationService.sendError('Confilcts : ' + (conflictCount > 1 ?  ' \n' : '') + msg);
+                    }
                   }
                 });
               } else {
@@ -85,6 +100,7 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
               }
             }, function (error) {
               $scope.promoting = false;
+              notificationService.sendError('Error promoting task to project: ' + error);
             });
           } else {
 
@@ -111,7 +127,22 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
                     var merge = JSON.parse(response.message);
                     snowowlService.searchMerge(merge.source, merge.target, 'CONFLICTS').then( function(response) {
                       if (response && response.items && response.items.length > 0) {
-                        // show conflicts
+                        var msg = '';
+                        var conflictCount = 0;
+                        angular.forEach(response.items, function (item) {
+                          if (item.id == merge.id) {
+                            angular.forEach(item.conflicts, function (conflict) {
+                              if (msg.length > 0) {
+                                msg = msg + ' \n';
+                              }
+                              msg += conflict.message;
+                              conflictCount++;
+                            });
+                          }                        
+                        });
+                        if (msg.length > 0) {
+                          notificationService.sendError('Confilcts : ' + (conflictCount > 1 ?  ' \n' : '') + msg);
+                        }
                       }
                     });
                   } else {
@@ -119,6 +150,7 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
                   }
                 }, function (error) {
                   $scope.promoting = false;
+                   notificationService.sendError('Error promoting task to project: ' + error);
                 });
               } else {
                 notificationService.clear();
@@ -392,7 +424,7 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
       $scope.checkForLock = function () {
 
         snowowlService.getBranch($scope.branch).then(function (response) {
-          
+
           // if lock found, set rootscope variable and continue polling
           if (response.metadata && response.metadata.lock) {
             if(response.metadata.lock.context.description === 'classifying the ontology')
@@ -403,7 +435,7 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
             $timeout(function () {
               $scope.checkForLock();
             }, 10000);
-           }         
+           }
           else {
             snowowlService.getClassificationsForTask($routeParams.projectKey, $routeParams.taskKey).then(function (response) {
               if (response && response.length > 0) {
@@ -415,16 +447,25 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
                   }, 10000);
                 } else {
                   $rootScope.branchLocked = false;
-                }                
+                }
               } else {
                 $rootScope.branchLocked = false;
               }
             });
-            
+
           }
         });
 
       };
+
+      $scope.isAutomatePromotionRunning = function (){
+        if($scope.automatePromotionStatus === 'Rebasing'
+          || $scope.automatePromotionStatus === 'Classifying'
+          || $scope.automatePromotionStatus === 'Promoting') {
+          return true;
+        }
+        return false;
+      }
 
       $scope.checkAutomatePromotionStatus = function (isInitialInvoke) {
         $scope.automatePromotionErrorMsg = '';
@@ -443,13 +484,15 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
                 notificationService.clear();
                 break;
               case 'Rebased with conflicts':
-                if ($scope.task.branchState === 'FORWARD'
-                    || $scope.task.branchState === 'UP_TO_DATE') {
-                  break;
-                }
-                $rootScope.branchLocked = false;
+                scaService.getTaskForProject($routeParams.projectKey, $routeParams.taskKey).then(function (response) {
+                  $scope.task = response;
+                  if ($scope.task.branchState !== 'FORWARD'
+                    && $scope.task.branchState !== 'UP_TO_DATE') {
+                    $rootScope.branchLocked = false;
                 $rootScope.automatedPromotionInQueued = false;
                 $scope.automatePromotionErrorMsg = 'Merge conflicts detected during automated promotion. Please rebase task manually, resolve merge conflicts and then restart automation.';
+                  }
+                });
                 break;
               case 'Classifying':
                 $rootScope.branchLocked = true;
@@ -458,7 +501,10 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
                 notificationService.clear();
                 break;
               case 'Classified with results':
-                if ($scope.task.latestClassificationJson.status === 'SAVED') {
+                if ($scope.task.latestClassificationJson.status === 'SAVED'
+                    || $scope.task.latestClassificationJson.status === 'RUNNING'
+                    || new Date($scope.task.latestClassificationJson.completionDate) > new Date(response.completeDate)) {
+                   $scope.automatePromotionStatus = '';
                   break;
                 }
                 $rootScope.classificationRunning = false;
@@ -480,6 +526,7 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
               case 'Completed':
                 $rootScope.classificationRunning = false;
                 $rootScope.automatedPromotionInQueued = false;
+                $rootScope.branchLocked = true;
                 if (!isInitialInvoke) {
                   $rootScope.$broadcast('reloadTask');
                 }
@@ -559,7 +606,11 @@ angular.module('singleConceptAuthoringApp.taskDetail', [])
         scaService.getTaskForProject($routeParams.projectKey, $routeParams.taskKey).then(function (response) {
           $scope.task = response;
           $scope.ontologyLock = $rootScope.classificationRunning;
-          $scope.checkAutomatePromotionStatus(true);
+          if ($scope.task.status !== 'Promoted') {
+            $scope.checkAutomatePromotionStatus(true);
+          } else {
+            $rootScope.branchLocked = true;
+          }
 
           snowowlService.getTraceabilityForBranch($scope.task.branchPath).then(function (traceability) {
           });

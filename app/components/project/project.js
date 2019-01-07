@@ -62,11 +62,16 @@ angular.module('singleConceptAuthoringApp.project', [
           $scope.project = response;
           $scope.branch = response.branchPath;
 
+          // last rebased time
+          if ($scope.project.branchBaseTimestamp) {
+            $scope.project.lastRebaseTime = new Date($scope.project.branchBaseTimestamp);
+          }
+
           // last promotion time
           snowowlService.getLastPromotionTime($scope.branch).then(function (promotionTime) {
             if (promotionTime) {
               let date = new Date(promotionTime);
-              $scope.project.lastPromotion = date;
+              $scope.project.lastPromotion = date.toUTCString();
             }
           });
 
@@ -195,7 +200,22 @@ angular.module('singleConceptAuthoringApp.project', [
                         var merge = JSON.parse(response.message);
                         snowowlService.searchMerge(merge.source, merge.target, 'CONFLICTS').then( function(response) {
                           if (response && response.items && response.items.length > 0) {
-                            // show conflicts
+                            var msg = '';
+                            var conflictCount = 0;
+                            angular.forEach(response.items, function (item) {
+                              if (item.id == merge.id) {
+                                angular.forEach(item.conflicts, function (conflict) {
+                                  if (msg.length > 0) {
+                                    msg = msg + ' \n';
+                                  }
+                                  msg += conflict.message;
+                                  conflictCount++;
+                                });
+                              }                        
+                            });
+                            if (msg.length > 0) {
+                              notificationService.sendError('Confilcts : ' + (conflictCount > 1 ?  ' \n' : '') + msg);
+                            }
                           }
                         });
                       } else {
@@ -240,7 +260,22 @@ angular.module('singleConceptAuthoringApp.project', [
                             var merge = JSON.parse(response.message);
                             snowowlService.searchMerge(merge.source, merge.target, 'CONFLICTS').then( function(response) {
                               if (response && response.items && response.items.length > 0) {
-                                // show conflicts
+                                var msg = '';
+                                var conflictCount = 0;
+                                angular.forEach(response.items, function (item) {
+                                  if (item.id == merge.id) {
+                                    angular.forEach(item.conflicts, function (conflict) {
+                                      if (msg.length > 0) {
+                                        msg = msg + ' \n';
+                                      }
+                                      msg += conflict.message;
+                                      conflictCount++;
+                                    });
+                                  }                        
+                                });
+                                if (msg.length > 0) {
+                                  notificationService.sendError('Confilcts : ' + (conflictCount > 1 ?  ' \n' : '') + msg);
+                                }
                               }
                             });
                           } else {
@@ -295,8 +330,8 @@ angular.module('singleConceptAuthoringApp.project', [
                     item.status.toLowerCase().indexOf(searchStr.toLowerCase()) > -1 ||
                     item.assignee.username.toLowerCase().indexOf(searchStr.toLowerCase()) > -1 ||
                     item.assignee.displayName.toLowerCase().indexOf(searchStr.toLowerCase()) > -1 ||
-                    item.reviewer.username.toLowerCase().indexOf(searchStr.toLowerCase()) > -1 ||
-                    item.reviewer.displayName.toLowerCase().indexOf(searchStr.toLowerCase()) > -1;
+                    $scope.convertReviewersToText(item.reviewers,'username').toLowerCase().indexOf(searchStr.toLowerCase()) > -1 ||
+                    $scope.convertReviewersToText(item.reviewers,'displayName').toLowerCase().indexOf(searchStr.toLowerCase()) > -1;
                 });
               } else {
                 mydata = $scope.tasks;
@@ -358,7 +393,25 @@ angular.module('singleConceptAuthoringApp.project', [
         });
       };
 
+      $scope.convertReviewersToText = function (reviewers, property) {       
+        if (reviewers) {
+          var list = reviewers.map(a => a[property]);
+          return list.join(', ');
+        }
+        return '';
+      };
 
+       $scope.toggleProjectScheduledRebase = function () {
+        $scope.project.projectScheduledRebaseDisabled = !$scope.project.projectScheduledRebaseDisabled;
+        notificationService.sendMessage('Updating Project Scheduled Rebase...');
+        scaService.updateProject($scope.project.key, {'projectScheduledRebaseDisabled': $scope.project.projectScheduledRebaseDisabled}).then(function (response) {         
+          notificationService.sendMessage('Project Scheduled Rebase successfully updated', 5000);
+        }, function (error) {
+          $scope.project.projectScheduledRebaseDisabled = !$scope.project.projectScheduledRebaseDisabled;
+          notificationService.sendError('Error udpating Project Scheduled Rebase: ' + error);
+        });
+      };
+      
       // on load, retrieve tasks for project
       function initialize() {
         // initialize the project
@@ -369,7 +422,6 @@ angular.module('singleConceptAuthoringApp.project', [
           $scope.tasks = response;
           angular.forEach($scope.tasks, function (task) {
             task.authorKey = task.assignee ? task.assignee.displayName : '';
-            task.reviewerKey = task.reviewer ? task.reviewer.displayName : '';
           });
           $scope.taskTableParams.reload();
         });
