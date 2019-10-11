@@ -11,25 +11,72 @@
     <div class="col-md-12 no-padding">
       <form class="form-floating">
         <div class="form-group">
-            <label for="batchProject">Select Project:</label>
-            <select id="batchProject" name="select-choice" class="form-control"
-                    ng-options="project.key as project.title for project in projects | orderBy: 'title'"
-                    ng-model="batch.projectKey"
-                    ng-class="[{'task-color-black': task.key}] "
-                    ng-change="clearMessages()"
-                    ng-disabled="task.status === 'Promoted'"
-              >
-            </select>
-            <label for="batchNumberPerTask">Number of Concepts Per Task:</label>
-            <select id="batchNumberPerTask" name="number-choice" class="form-control"
-                    ng-model="batch.batchNumberPerTask"
-              >
-                <option>10</option>
-                <option>20</option>
-                <option>30</option>
-                <option>40</option>
-                <option>50</option>
-            </select>
+            <div class="row col-md-12 p-15">
+                <div class="col-md-6">
+                    <label for="batchProject">Select Project:</label>
+                    <select id="batchProject" name="select-choice" class="form-control"
+                            ng-options="project.key as project.title for project in projects | orderBy: 'title'"
+                            ng-model="batch.projectKey"
+                            ng-class="[{'task-color-black': task.key}] "
+                            ng-change="clearMessages()"
+                            ng-disabled="task.status === 'Promoted'"
+                      >
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="batchNumberPerTask">Number of Concepts Per Task:</label>
+                    <select id="batchNumberPerTask" name="number-choice" class="form-control"
+                            ng-model="batch.batchNumberPerTask"
+                      >
+                        <option>10</option>
+                        <option>20</option>
+                        <option>30</option>
+                        <option>40</option>
+                        <option>50</option>
+                    </select>
+                </div>
+            </div>
+            <br>
+            <br>
+             <div class="row col-md-12 p-15">
+                <div class="col-md-6">
+                    <label for="batchAuthor">Select Assignee:</label>
+                    <input id="batchAuthor" class="form-control" type="text" ng-model="selectedItem"
+                        typeahead="suggestion as suggestion.displayName for suggestion in getAvailableUsers() | filter:{displayName:$viewValue}"  
+                        typeahead-focus-first="false"                
+                        typeahead-editable="false"
+                        typeahead-on-select="addReviewer($item)"
+                        typeahead-loading="typeaheadLoading"
+                        typeahead-focus-custom
+                        ng-keyup="listenReviewerTypeaheadEvent({event: $event})"> 
+                        <i ng-show="typeaheadLoading" class="md md-cached"></i>                   
+                      </input>
+                </div>
+                <div class="col-md-6">
+                    <label for="batchReviewer">Select Reviewer</label>
+                    <input id="batchReviewer" class="form-control" type="text" ng-model="selectedItem"
+                        typeahead="suggestion as suggestion.displayName for suggestion in getAvailableUsers() | filter:{displayName:$viewValue}"  
+                        typeahead-focus-first="false"                
+                        typeahead-editable="false"
+                        typeahead-on-select="addReviewer($item)"
+                        typeahead-loading="typeaheadLoading"
+                        typeahead-focus-custom
+                        ng-keyup="listenReviewerTypeaheadEvent({event: $event})"> 
+                        <i ng-show="typeaheadLoading" class="md md-cached"></i>                   
+                      </input>
+                </div>
+            </div>
+        <br>
+        <br>
+            <div class="row colummn-md-12 p-25">
+                <div class="col-md-4"></div>
+                <div class="col-md-4">
+                    <label class="btn btn-default btn-file column-md-4 btn-primary button-link sca-light-text" ng-disabled="!templateOptions.selectedTemplate || isBatchPopulated()"> Upload a File to create a Batch
+                        <input id="batchFileUpload" ng-disabled="!templateOptions.selectedTemplate || isBatchPopulated()" type="file" name="tsvFile" accept=".tsv" onchange="angular.element(this).scope().uploadFile(this)" class="invisible">
+                    </label>
+                </div>
+                <div class="col-md-4"></div>
+            </div>
           <br>
         </div>
       </form>
@@ -39,13 +86,15 @@
   <div class="card-action clearfix">
   <hr>
       <!-- Display create only if no task supplied -->
-      <div ng-if="!task.key" class="col-md-4">
-        <button type="button" class="col-md-12 btn btn-info no-margin"
-                ng-click="createTask(false)">Upload Batch </button>
-      </div>
       <div class="col-md-4">
         <button type="button" class=" col-md-12 btn btn-warning no-margin"
                 ng-click="close()">Cancel </button>
       </div>
+      <div class="col-md-4"></div>
+      <div class="col-md-4">
+        <button type="button" class="col-md-12 btn btn-info no-margin"
+                ng-click="createTask(false)">Upload Batch </button>
+      </div>
+      
     </div>
 </div>
