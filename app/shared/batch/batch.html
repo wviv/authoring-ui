@@ -41,11 +41,11 @@
              <div class="row col-md-12 p-15">
                 <div class="col-md-6">
                     <label for="batchAuthor">Select Assignee:</label>
-                    <input id="batchAuthor" class="form-control" type="text" ng-model="selectedItem"
+                    <input id="batchAuthor" class="form-control" type="text" ng-model="author"
                         typeahead="suggestion as suggestion.displayName for suggestion in getAvailableUsers() | filter:{displayName:$viewValue}"  
                         typeahead-focus-first="false"                
                         typeahead-editable="false"
-                        typeahead-on-select="addReviewer($item)"
+                        typeahead-on-select="addAuthor($item)"
                         typeahead-loading="typeaheadLoading"
                         typeahead-focus-custom
                         ng-keyup="listenReviewerTypeaheadEvent({event: $event})"> 
@@ -54,7 +54,7 @@
                 </div>
                 <div class="col-md-6">
                     <label for="batchReviewer">Select Reviewer</label>
-                    <input id="batchReviewer" class="form-control" type="text" ng-model="selectedItem"
+                    <input id="batchReviewer" class="form-control" type="text" ng-model="reviewer"
                         typeahead="suggestion as suggestion.displayName for suggestion in getAvailableUsers() | filter:{displayName:$viewValue}"  
                         typeahead-focus-first="false"                
                         typeahead-editable="false"
@@ -72,7 +72,7 @@
                 <div class="col-md-4"></div>
                 <div class="col-md-4">
                     <label class="btn btn-default btn-file column-md-4 btn-primary button-link sca-light-text" ng-disabled="!templateOptions.selectedTemplate || isBatchPopulated()"> Upload a File to create a Batch
-                        <input id="batchFileUpload" ng-disabled="!templateOptions.selectedTemplate || isBatchPopulated()" type="file" name="tsvFile" accept=".tsv" onchange="angular.element(this).scope().uploadFile(this)" class="invisible">
+                        <input id="batchFileUpload" type="file" name="tsvFile" accept=".tsv" onchange="angular.element(this).scope().uploadFile(this)" class="invisible">
                     </label>
                 </div>
                 <div class="col-md-4"></div>
