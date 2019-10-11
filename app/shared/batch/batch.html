@@ -1,0 +1,51 @@
+
+<div id="batchModal" class="clearfix">
+  <div class="modal-header clearfix">
+
+   
+    <button type="button" class="close" ng-click="close()">&times;</button>
+    <h4 class="modal-title">Upload a Batch</h4>
+
+  </div>
+  <div class="modal-body">
+    <div class="col-md-12 no-padding">
+      <form class="form-floating">
+        <div class="form-group">
+            <label for="batchProject">Select Project:</label>
+            <select id="batchProject" name="select-choice" class="form-control"
+                    ng-options="project.key as project.title for project in projects | orderBy: 'title'"
+                    ng-model="batch.projectKey"
+                    ng-class="[{'task-color-black': task.key}] "
+                    ng-change="clearMessages()"
+                    ng-disabled="task.status === 'Promoted'"
+              >
+            </select>
+            <label for="batchNumberPerTask">Number of Concepts Per Task:</label>
+            <select id="batchNumberPerTask" name="number-choice" class="form-control"
+                    ng-model="batch.batchNumberPerTask"
+              >
+                <option>10</option>
+                <option>20</option>
+                <option>30</option>
+                <option>40</option>
+                <option>50</option>
+            </select>
+          <br>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="modal-footer clearfix">
+  <div class="card-action clearfix">
+  <hr>
+      <!-- Display create only if no task supplied -->
+      <div ng-if="!task.key" class="col-md-4">
+        <button type="button" class="col-md-12 btn btn-info no-margin"
+                ng-click="createTask(false)">Upload Batch </button>
+      </div>
+      <div class="col-md-4">
+        <button type="button" class=" col-md-12 btn btn-warning no-margin"
+                ng-click="close()">Cancel </button>
+      </div>
+    </div>
+</div>

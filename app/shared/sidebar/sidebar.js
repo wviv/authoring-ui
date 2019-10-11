@@ -47,5 +47,17 @@ angular.module('singleConceptAuthoringApp.sidebar', [])
         }, function () {
         });
       };
+        
+      $scope.openBatchUploadModal = function () {
+        var modalInstance = $modal.open({
+          templateUrl: 'shared/batch/batch.html',
+          controller: 'batchCtrl'
+        });
+
+        modalInstance.result.then(function (response) {
+              $rootScope.$broadcast('reloadTasks');
+            }, function () {
+        });
+      };
     }
   ]);
