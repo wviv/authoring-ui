@@ -71,7 +71,7 @@
             <div class="row colummn-md-12 p-25">
                 <div class="col-md-4"></div>
                 <div class="col-md-4">
-                    <label class="btn btn-default btn-file column-md-4 btn-primary button-link sca-light-text" ng-disabled="!templateOptions.selectedTemplate || isBatchPopulated()"> Upload a File to create a Batch
+                    <label class="btn btn-default btn-file column-md-4 btn-primary button-link sca-light-text" ng-disabled="!templateOptions.selectedTemplate || isBatchPopulated()"> Upload Batch File
                         <input id="batchFileUpload" type="file" name="tsvFile" accept=".tsv" onchange="angular.element(this).scope().uploadFile(this)" class="invisible">
                     </label>
                 </div>
@@ -93,7 +93,7 @@
       <div class="col-md-4"></div>
       <div class="col-md-4">
         <button type="button" class="col-md-12 btn btn-info no-margin"
-                ng-click="createTask(false)">Upload Batch </button>
+                ng-click="createTask(false)">Create Tasks</button>
       </div>
       
     </div>
