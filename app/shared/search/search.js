@@ -50,6 +50,16 @@ angular.module('singleConceptAuthoringApp.searchPanel', [])
         let languages = dialects[option.id].split('-');
         return (languages.length > 1 ? languages[1].toUpperCase() : languages[0].toUpperCase());
       }
+        
+      $scope.openEclBuilder = function(eclString, branch) {
+            console.log('ecl');
+            $("body").append("<ecl-builder id='ecl-builder' branch=" + branch + " api-url='/snowstorm/snomed-ct' ecl-string='" + eclString + "'></ecl-builder>");
+            
+            const el = document.querySelector('ecl-builder');
+            el.addEventListener('output', e => {
+                return e.detail;
+            });
+        }
 
       function initialize() {
         terminologyServerService.getReferenceSetMembersForBranch($scope.branch).then(function(result) {
